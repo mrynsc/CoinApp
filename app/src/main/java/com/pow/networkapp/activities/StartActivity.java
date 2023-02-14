@@ -22,9 +22,8 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
-import android.view.MenuItem;
-import android.widget.Toast;
 
+import android.view.MenuItem;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
@@ -256,7 +255,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navInvite:
-                startActivity(new Intent(this,InviteActivity.class));
+                if(Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
+                    Appodeal.show(this, Appodeal.REWARDED_VIDEO);
+                    startActivity(new Intent(this,InviteActivity.class));
+                }else {
+                    startActivity(new Intent(this,InviteActivity.class));
+                }
                 break;
             case R.id.navWallet:
                 startActivity(new Intent(this,WalletActivity.class));
