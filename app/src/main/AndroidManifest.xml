@@ -30,7 +30,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-8771448159356108~5261721511" />
+            android:value="ca-app-pub-1111111111111111~1111111111" />
 
         <activity
             android:name=".activities.NotificationsActivity"

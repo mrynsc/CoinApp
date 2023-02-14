@@ -203,21 +203,17 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         binding.mainProfile.startBtn.setOnClickListener(view -> {
             if (timerState == TimerState.STOPPED) {
-                if(Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
-                    Appodeal.show(this, Appodeal.REWARDED_VIDEO);
-                    prefUtils.setStartedTime((int) getNow());
-                    Random r = new Random();
-                    MAX_TIME = r.nextInt(tcrl - (tcrl - 30)) + (tcrl - 30);
-                    binding.mainProfile.progressBarCircle.setMax(MAX_TIME);
-                    timeToStart = MAX_TIME;
-                    if (timer1 != null) {
-                        timer1.cancel();
-                    }
-                    startTimer(MAX_TIME);
-                    timerState = TimerState.RUNNING;
-                }else {
-                    StyleableToast.makeText(this,"Please try again!",R.style.customToast).show();
+                prefUtils.setStartedTime((int) getNow());
+                Random r = new Random();
+                MAX_TIME = r.nextInt(tcrl - (tcrl - 30)) + (tcrl - 30);
+                binding.mainProfile.progressBarCircle.setMax(MAX_TIME);
+                timeToStart = MAX_TIME;
+                if (timer1 != null) {
+                    timer1.cancel();
                 }
+                startTimer(MAX_TIME);
+                timerState = TimerState.RUNNING;
+
 
 
             }
@@ -263,7 +259,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 }
                 break;
             case R.id.navWallet:
-                startActivity(new Intent(this,WalletActivity.class));
+                if(Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
+                    Appodeal.show(this, Appodeal.REWARDED_VIDEO);
+                    startActivity(new Intent(this,WalletActivity.class));
+                }else {
+                    startActivity(new Intent(this,WalletActivity.class));
+                }
                 break;
             case R.id.navTransactions:
                 startActivity(new Intent(this,TransactionsActivity.class));
