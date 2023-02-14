@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">POW</string>
+
+    <string name="client_id">24929797723-1v60ocaddvgo852orqi7c9dl3i9rnaif.apps.googleusercontent.com</string>
+    <string name="client_secret">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</string>
+
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="coin">Claimed</string>
+    <string name="referral">Referral</string>
+    <string name="invite_amp_earn"><![CDATA[Invite & Earn]]></string>
+    <string name="wallet">Wallet</string>
+    <string name="transactions">Transactions</string>
+    <string name="announcement">Announcements</string>
+    <string name="notifications">Notifications</string>
+    <string name="support">Support</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="invite_your_friends">Invite Your Friends</string>
+    <string name="invite_your_friend_and_earn_50_coin">Invite your friend and earn 50 coin.</string>
+    <string name="invite">INVITE</string>
+    <string name="my_referral">MY REFERRALS</string>
+    <string name="oops">Oops!</string>
+
+    <string name="notification_channel_name">PowNetwork</string>
+    <string name="default_notification_channel_id" translatable="false">pownetwork_mining_default_channel</string>
+    <string name="start">START</string>
+    <string name="profile">Profile</string>
+    <string name="created_on">Register Date</string>
+    <string name="nothing_found">Nothing Found</string>
+    <string name="one_signal_app_id">59d4e417-d4c7-466e-b11e-c97d6c0f158e</string>
+    <string name="use_your_invite_code">Invite Code</string>
+    <string name="appodeal_app_id">c704388c752f9dd907e6e252845a94bc9bbbe1807ad89f0e</string>
+
+</resources>

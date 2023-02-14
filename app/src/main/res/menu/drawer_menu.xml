@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+
+
+    <group android:checkableBehavior="single">
+
+
+        <item
+            android:id="@+id/navInvite"
+            android:icon="@drawable/invite_to_group_svgrepo_com"
+            android:title="@string/invite_amp_earn" />
+        <item
+            android:id="@+id/navWallet"
+            android:icon="@drawable/wallet_svgrepo_com"
+            android:title="@string/wallet" />
+        <item
+            android:id="@+id/navTransactions"
+            android:icon="@drawable/transaction_finance_business_svgrepo_com"
+            android:title="@string/transactions" />
+
+        <item
+            android:id="@+id/navAnnouncements"
+            android:icon="@drawable/announcement_bullhorn_loud_hailer_megaphone_speaking_trumpet_svgrepo_com"
+            android:title="@string/announcement" />
+
+
+        <item
+            android:id="@+id/navSupport"
+            android:icon="@drawable/support_svgrepo_com"
+            android:title="@string/support" />
+
+        <item
+            android:id="@+id/navSignOut"
+            android:icon="@drawable/exit_svgrepo_com"
+            android:title="@string/sign_out" />
+
+
+
+    </group>
+
+
+
+</menu>

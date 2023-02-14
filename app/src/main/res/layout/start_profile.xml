@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        >
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="@dimen/_4sdp">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                app:cardCornerRadius="@dimen/_4sdp"
+                android:id="@+id/card"
+                app:cardBackgroundColor="@color/app_purple"
+                app:cardUseCompatPadding="true"
+
+                >
+
+
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/earning"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:orientation="vertical">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:id="@+id/customLay"
+                        android:layout_height="wrap_content">
+
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                    <TextView
+                        android:id="@+id/username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/customLay"
+                        android:layout_centerInParent="true"
+
+                        android:layout_marginTop="3dp"
+                        android:fontFamily="@font/allerta"
+                        android:maxLines="1"
+                        android:text=""
+                        android:textAlignment="center"
+                        android:textColor="@color/white"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:layout_marginBottom="@dimen/_3sdp"
+                        android:layout_below="@id/username"
+                        android:layout_height="wrap_content">
+
+
+
+
+
+                        <TextView
+                            android:id="@+id/coinInfoText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginEnd="@dimen/_3sdp"
+                            android:layout_toStartOf="@id/touch_outside"
+                            android:fontFamily="@font/allerta"
+                            android:text="@string/coin"
+                            android:textColor="@color/white"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:id="@+id/coinText"
+                            android:layout_marginEnd="@dimen/_3sdp"
+                            android:layout_below="@id/coinInfoText"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/allerta"
+
+                            android:layout_toStartOf="@id/touch_outside"
+                            android:layout_centerHorizontal="true"
+                            android:textColor="@color/white"/>
+
+
+
+
+
+
+                        <ImageView
+                            android:layout_width="@dimen/_30sdp"
+                            android:layout_height="@dimen/_30sdp"
+                            android:id="@+id/touch_outside"
+                            android:src="@drawable/coin_svgrepo_com"
+                            android:layout_toStartOf="@id/centerDivider"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginEnd="@dimen/_6sdp"
+                            />
+
+                        <View
+                            android:layout_width="1dp"
+                            android:layout_height="@dimen/_20sdp"
+                            android:background="@color/white"
+                            android:id="@+id/centerDivider"
+                            android:layout_centerHorizontal="true"
+                            android:layout_margin="@dimen/_5sdp"/>
+
+                        <ImageView
+                            android:layout_width="@dimen/_30sdp"
+                            android:layout_height="@dimen/_30sdp"
+                            android:layout_marginStart="@dimen/_6sdp"
+                            android:layout_toEndOf="@id/centerDivider"
+                            android:src="@drawable/community_share_svgrepo_com"
+                            android:id="@+id/referralImage"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/referral"
+                            android:id="@+id/referralText"
+                            android:layout_marginStart="@dimen/_3sdp"
+                            android:fontFamily="@font/allerta"
+
+                            android:textSize="13sp"
+                            android:layout_toEndOf="@id/referralImage"
+                            android:layout_centerHorizontal="true"
+                            android:textColor="@color/white"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/allerta"
+                            android:id="@+id/referral"
+                            android:layout_below="@id/referralText"
+                            android:layout_marginStart="@dimen/_3sdp"
+                            android:layout_toEndOf="@id/referralImage"
+                            android:layout_centerHorizontal="true"
+                            android:textColor="@color/white"/>
+
+
+
+
+
+                    </RelativeLayout>
+
+
+
+
+
+
+                </RelativeLayout>
+
+
+
+
+
+
+
+
+            </androidx.cardview.widget.CardView>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:id="@+id/gainLayout"
+                android:layout_below="@id/card"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_height="@dimen/_200sdp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/circle_svgrepo_com"
+                    app:tint="@color/app_purple" />
+
+
+                <com.github.guilhe.circularprogressview.CircularProgressView
+                    android:id="@+id/progressBarCircle"
+                    android:layout_width="@dimen/_180sdp"
+                    android:layout_height="@dimen/_180sdp"
+                    android:layout_centerInParent="true"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:padding="@dimen/_20sdp"
+                    app:progress="100"
+                    app:progressBarColor="#000D3F"
+                    app:progressBarThickness="@dimen/_3sdp"
+                    app:progressThumb="true"
+                    app:shadow="false" />
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:id="@+id/lottieAnimation"
+                    android:layout_above="@id/startBtn"
+                    android:layout_centerHorizontal="true"
+                    android:layout_width="@dimen/_60sdp"
+                    android:layout_height="@dimen/_60sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"
+                    app:lottie_fileName="miner_anim.json"
+                    app:lottie_loop="true"
+                    app:lottie_autoPlay="true"
+                    />
+
+                <TextView
+                    android:id="@+id/startBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rect_border"
+                    android:padding="@dimen/_4sdp"
+                    android:layout_centerInParent="true"
+                    android:fontFamily="@font/allerta"
+                    android:textSize="16sp"
+                    android:text="@string/start"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/startBtn"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:id="@+id/energy_count"
+                    android:text="Time to Claim"
+                    android:fontFamily="@font/allerta"
+                    android:textColor="@color/black"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                     />
+
+                <ImageView
+                    android:layout_width="@dimen/_30sdp"
+                    android:layout_height="@dimen/_30sdp"
+                    android:src="@drawable/high_voltage_svgrepo_com"
+                    android:layout_below="@id/energy_count"
+                    android:layout_centerInParent="true"
+                    app:tint="@color/app_purple"
+                    android:id="@+id/energyStatusImage"
+                    android:layout_marginTop="@dimen/_7sdp"/>
+
+
+
+            </RelativeLayout>
+
+
+
+
+        </RelativeLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/totalUsersLay"
+        android:gravity="center"
+        android:layout_below="@id/nestedScrollView"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Users: "
+            android:id="@+id/totalUsers"
+            android:fontFamily="@font/allerta"
+            android:drawableStart="@drawable/ic_person_black_24dp"
+            android:drawablePadding="@dimen/_3sdp"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonsLay"
+        android:layout_below="@id/totalUsersLay"
+        android:layout_marginTop="@dimen/_30sdp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:src="@drawable/telegram_svgrepo_com"
+            android:id="@+id/telegramBtn"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/instaBtn"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:src="@drawable/instagram_1_svgrepo_com"
+            android:layout_weight="1"
+
+            />
+        <ImageView
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:id="@+id/twitterBtn"
+            android:src="@drawable/twitter_color_svgrepo_com"
+            android:layout_margin="@dimen/_4sdp"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+
+
+    <com.appodeal.ads.BannerView
+        android:id="@+id/bannerAds"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        />
+
+
+
+
+</RelativeLayout>

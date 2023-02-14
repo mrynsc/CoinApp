@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "24929797723",
+    "firebase_url": "https://pownetwork-ab594-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "pownetwork-ab594",
+    "storage_bucket": "pownetwork-ab594.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24929797723:android:6a835fda448a2c76a4e17e",
+        "android_client_info": {
+          "package_name": "com.pow.networkapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "24929797723-aq8jlldeioakvbh6b1j5ks5v7unmolsv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pow.networkapp",
+            "certificate_hash": "8451041fe811890aec6924d5b5e87fe9a5aab0c6"
+          }
+        },
+        {
+          "client_id": "24929797723-fkgubqb8us5n3834uqk2f447nnavepcp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAH3Do6Ox3r3YzJ00N4AwG6DC3O428afXE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "24929797723-1v60ocaddvgo852orqi7c9dl3i9rnaif.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
