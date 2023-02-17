@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 
-//pow1234
+
 android {
     namespace 'com.pow.networkapp'
     compileSdk 33
