@@ -58,17 +58,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.MyHolder> {
 
         }
 
-        holder.recyclerRowBinding.confirmBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (onClick!=null){
-                    int pos = holder.getAdapterPosition();
-                    if (pos!=RecyclerView.NO_POSITION){
-                        onClick.onClick(pos);
-                    }
-                }
-            }
-        });
+
 
 
 

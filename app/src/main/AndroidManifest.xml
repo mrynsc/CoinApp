@@ -27,10 +27,9 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1111111111111111~1111111111" />
+            android:value="ca-app-pub-4799864564577169~6360049703" />
 
         <activity
             android:name=".activities.NotificationsActivity"

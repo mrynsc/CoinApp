@@ -1,11 +1,15 @@
 package com.pow.networkapp.repo;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.pow.networkapp.activities.MainActivity;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.User;
 import com.squareup.picasso.Picasso;
@@ -17,8 +21,7 @@ public class StartActivityRepo {
     }
 
 
-
-    public void getUserInfo(String userId, ActivityStartBinding binding){
+    public void getUserInfo(Activity activity,String userId, ActivityStartBinding binding){
         FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -33,8 +36,12 @@ public class StartActivityRepo {
                                 binding.mainProfile.coinText.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
                                 binding.mainProfile.referral.setText(new StringBuilder().append("").append(user.getReferral()).toString());
 
+                            }else {
+                                activity.finish();
                             }
 
+                        }else {
+                            activity.finish();
                         }
                     }
 

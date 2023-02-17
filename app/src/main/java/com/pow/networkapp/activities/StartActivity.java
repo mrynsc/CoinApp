@@ -14,6 +14,8 @@ import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,6 +34,8 @@ import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
 import com.appodeal.ads.InterstitialCallbacks;
 import com.appodeal.ads.RewardedVideoCallbacks;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +45,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.User;
+import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.util.PrefUtils;
 import com.pow.networkapp.R;
 import com.pow.networkapp.viewmodel.StartActivityViewModel;
@@ -78,6 +83,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private CountDownTimer timer1;
     private ProgressDialog pd;
     private InstallReferrerClient mReferrerClient;
+    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
 
     @Override
@@ -110,6 +116,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onBannerFailedToLoad() {
+
             }
 
             @Override
@@ -142,7 +149,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onRewardedVideoFailedToLoad() {
-
             }
 
             @Override
@@ -219,6 +225,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             }
         });
 
+        updateLastSeen();
         getTotalUsers();
 
         binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
@@ -228,6 +235,18 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
     }
+    private void updateLastSeen(){
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("lastSeen",System.currentTimeMillis());
+
+        FirebaseDatabase.getInstance()
+                .getReference().child("Users").child(firebaseUser.getUid()).updateChildren(map);
+
+    }
+
+
+
+
 
     private void getTotalUsers(){
         FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
@@ -266,11 +285,13 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     startActivity(new Intent(this,WalletActivity.class));
                 }
                 break;
-            case R.id.navTransactions:
-                startActivity(new Intent(this,TransactionsActivity.class));
-                break;
+//            case R.id.navTransactions:
+//                startActivity(new Intent(this,TransactionsActivity.class));
+//                break;
 
             case R.id.navSupport:
+                startActivity(new Intent(this,NotificationsActivity.class));
+
                 break;
 
             case R.id.navAnnouncements:
@@ -289,7 +310,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     }
 
     private void getUserInfo(){
-        viewModel.getUserInfo(firebaseUser.getUid(),binding);
+        viewModel.getUserInfo(this,firebaseUser.getUid(),binding);
     }
 
     private long getNow(){
@@ -540,6 +561,50 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
     }
 
+    private void sendPointToInviter(String userId){
+        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    User user = snapshot.getValue(User.class);
+                    HashMap<String,Object> map = new HashMap<>();
+                    if (user!=null){
+                        map.put("balance", user.getBalance() + 50);
+                        map.put("referral",user.getReferral() + 50);
+                    }
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
+                            .updateChildren(map);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
+    private void saveUserToMyReferrals(String userId){
+        HashMap<String,Object> hashMap = new HashMap<>();
+        hashMap.put("inviterId",userId);
+        hashMap.put("receiverId",firebaseUser.getUid());
+
+        FirebaseDatabase.getInstance()
+                .getReference().child("Referrals").child(userId).child(firebaseUser.getUid())
+                .updateChildren(hashMap)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
+    }
     @Override
     public void onInstallReferrerSetupFinished(int responseCode) {
         switch (responseCode) {
@@ -547,6 +612,32 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 try {
                     ReferrerDetails response = mReferrerClient.getInstallReferrer();
                     String referrer = response.getInstallReferrer();
+
+                    FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()){
+                                User user = snapshot.getValue(User.class);
+                                if (user != null && user.getReferralStatus() == 0) {
+                                    if (referrer.length()==28){
+                                        sendPointToInviter(referrer);
+                                        saveUserToMyReferrals(referrer);
+                                        HashMap<String, Object> hashMap = new HashMap<>();
+                                        hashMap.put("referralStatus", 1);
+                                        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
+                                                .updateChildren(hashMap);
+                                    }
+
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
                     System.out.println("davet " + referrer);
                     mReferrerClient.endConnection();
                 } catch (RemoteException e) {
@@ -593,4 +684,23 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         removeAlarmManager();
         super.onResume();
     }
+
+
+    @Override
+    protected void onStart() {
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeListener, intentFilter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(networkChangeListener);
+        super.onStop();
+    }
+
+
+
+
+
 }

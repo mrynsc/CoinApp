@@ -16,10 +16,10 @@
             android:id="@+id/navWallet"
             android:icon="@drawable/wallet_svgrepo_com"
             android:title="@string/wallet" />
-        <item
-            android:id="@+id/navTransactions"
-            android:icon="@drawable/transaction_finance_business_svgrepo_com"
-            android:title="@string/transactions" />
+<!--        <item-->
+<!--            android:id="@+id/navTransactions"-->
+<!--            android:icon="@drawable/transaction_finance_business_svgrepo_com"-->
+<!--            android:title="@string/transactions" />-->
 
         <item
             android:id="@+id/navAnnouncements"

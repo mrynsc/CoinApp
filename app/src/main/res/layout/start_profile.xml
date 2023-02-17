@@ -118,7 +118,7 @@
                             android:layout_height="@dimen/_30sdp"
                             android:id="@+id/touch_outside"
                             app:tint="#FF9B21"
-                            android:src="@drawable/team_requirement_svgrepo_com"
+                            android:src="@drawable/water_drop_4_svgrepo_com"
                             android:layout_toStartOf="@id/centerDivider"
                             android:layout_centerHorizontal="true"
                             android:layout_marginEnd="@dimen/_6sdp"
@@ -138,7 +138,7 @@
                             android:layout_marginStart="@dimen/_6sdp"
                             android:layout_toEndOf="@id/centerDivider"
                             app:tint="#FF9B21"
-                            android:src="@drawable/water_drop_4_svgrepo_com"
+                            android:src="@drawable/team_requirement_svgrepo_com"
                             android:id="@+id/referralImage"
                             />
 
@@ -303,14 +303,23 @@
     </LinearLayout>
 
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/totalUsersLay"
+        android:layout_margin="@dimen/_5sdp"
+        android:id="@+id/infotext"
+        android:textColor="@color/black"
+        android:fontFamily="@font/allerta"
+        android:text="@string/announcement_you_get_30_pow_when_you_press_start_once_every_4_hours_you_earn_50_pow_by_inviting_your_friends"/>
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/buttonsLay"
-        android:layout_below="@id/totalUsersLay"
-        android:layout_marginTop="@dimen/_30sdp"
+        android:layout_below="@id/infotext"
+        android:layout_marginTop="@dimen/_10sdp"
         android:orientation="horizontal">
 
         <ImageView

@@ -87,19 +87,28 @@
                     android:layout_marginStart="@dimen/_8sdp"/>
 
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/copyBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/iBody"
+                    android:layout_marginStart="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:layout_marginBottom="@dimen/_5sdp"
+                    android:backgroundTint="#FF9B21"
+                    android:text="INVITE" />
+
+
 
                 <ImageView
-                    android:layout_width="@dimen/_30sdp"
-                    android:layout_height="@dimen/_30sdp"
-                    android:layout_below="@id/iBody"
-                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_width="@dimen/_90sdp"
+                    android:layout_height="@dimen/_90sdp"
                     android:textStyle="bold"
-                    android:src="@drawable/copy_svgrepo_com"
+                    android:src="@drawable/powlogo"
                     android:background="?selectableItemBackgroundBorderless"
                     android:fontFamily="@font/allerta"
-                    android:id="@+id/copyBtn"
-                    android:layout_marginEnd="@dimen/_5sdp"
-                    android:layout_alignParentEnd="true"
+                    android:layout_toEndOf="@id/iBody"
                     android:layout_marginBottom="@dimen/_5sdp"/>
 
 
@@ -111,41 +120,33 @@
         </androidx.cardview.widget.CardView>
 
 
+
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+
             android:id="@+id/rc_header"
-            android:visibility="gone"
             android:layout_below="@id/invite_widget">
 
-            <EditText
-                android:id="@+id/referralEt"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/headerText"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_10sdp"
-                android:layout_marginEnd="@dimen/_10sdp"
-                android:layout_marginBottom="@dimen/_10sdp"
-                android:background="@drawable/rect_border"
-                android:hint="@string/use_your_invite_code"
-                android:padding="@dimen/_6sdp"
+                android:layout_marginStart="@dimen/_3sdp"
+                android:layout_marginTop="@dimen/_3sdp"
+                android:layout_marginEnd="@dimen/_3sdp"
+                android:layout_marginBottom="@dimen/_3sdp"
+                android:fontFamily="@font/allerta"
+                android:text="My Referrals"
                 android:textColor="@color/black"
-                android:textColorHint="@color/black" />
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/checkBtn"
-                android:text="Check"
-                android:layout_margin="@dimen/_10sdp"
-                android:backgroundTint="@color/orange_700"
-                android:layout_below="@id/referralEt"/>
+                android:textSize="16sp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/checkBtn"
+                android:layout_below="@id/headerText"
                 android:id="@+id/recyclerView"/>
 
 
@@ -157,6 +158,33 @@
 
     </RelativeLayout>
 
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:visibility="gone"
+        android:id="@+id/nothingLay"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:src="@drawable/navigation_svgrepo_com"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/allerta"
+            android:text="@string/nothing_found"
+            android:layout_margin="@dimen/_5sdp"
+            android:textColor="@color/black"
+            android:textSize="20sp"/>
+
+    </LinearLayout>
 
 
     <com.appodeal.ads.BannerView

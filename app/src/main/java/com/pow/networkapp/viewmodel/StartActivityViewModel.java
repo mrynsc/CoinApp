@@ -1,5 +1,7 @@
 package com.pow.networkapp.viewmodel;
 
+import android.app.Activity;
+
 import androidx.lifecycle.ViewModel;
 
 import com.pow.networkapp.databinding.ActivityStartBinding;
@@ -13,8 +15,8 @@ public class StartActivityViewModel extends ViewModel {
         repo = new StartActivityRepo();
     }
 
-    public void getUserInfo(String userId, ActivityStartBinding binding){
-        repo.getUserInfo(userId,binding);
+    public void getUserInfo(Activity activity,String userId, ActivityStartBinding binding){
+        repo.getUserInfo(activity,userId,binding);
     }
 
 }

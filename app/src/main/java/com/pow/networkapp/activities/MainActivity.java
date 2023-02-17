@@ -25,12 +25,15 @@ import androidx.annotation.Nullable;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import com.onesignal.OneSignal;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityMainBinding;
+import com.pow.networkapp.util.NetworkChangeListener;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity  {
     private FirebaseAuth firebaseAuth;
     private GoogleSignInClient googleSignInClient;
     private ProgressDialog pd;
+    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
 
     @Override
@@ -123,9 +127,7 @@ public class MainActivity extends AppCompatActivity  {
                                         pd.dismiss();
                                         FirebaseUser firebaseUser =firebaseAuth.getCurrentUser();
 
-                                        if (firebaseUser != null) {
-                                            addToDatabase(firebaseUser);
-                                        }
+                                        addToDatabase(firebaseUser);
 
 
                                     }
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private void addToDatabase(FirebaseUser firebaseUser) {
 
-        Query query = FirebaseDatabase.getInstance()
+        Query query = FirebaseDatabase.getInstance("https://pownetwork-ab594-default-rtdb.europe-west1.firebasedatabase.app/")
                 .getReference().child("Users")
                 .orderByChild("email").equalTo(firebaseUser.getEmail());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -157,9 +159,8 @@ public class MainActivity extends AppCompatActivity  {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getChildrenCount()<=0){
                     String userId = firebaseAuth.getCurrentUser().getUid();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance()
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pownetwork-ab594-default-rtdb.europe-west1.firebasedatabase.app/")
                             .getReference().child("Users").child(userId);
-
 
                     HashMap<String,Object> map = new HashMap<>();
                     map.put("username",firebaseUser.getDisplayName());
@@ -172,6 +173,7 @@ public class MainActivity extends AppCompatActivity  {
                     map.put("userId",userId);
                     map.put("image",firebaseUser.getPhotoUrl().toString());
                     map.put("accountType",0);
+                    map.put("referralStatus",0);
                     map.put("referralLink", UUID.randomUUID().toString().substring(0,8));
 
                     databaseReference.setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -207,5 +209,17 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
+    @Override
+    protected void onStart() {
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeListener, intentFilter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(networkChangeListener);
+        super.onStop();
+    }
 
 }

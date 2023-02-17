@@ -3,6 +3,8 @@ package com.pow.networkapp.activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -20,6 +22,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityWalletBinding;
 import com.pow.networkapp.model.User;
+import com.pow.networkapp.util.NetworkChangeListener;
 
 import java.util.HashMap;
 
@@ -30,6 +33,7 @@ public class WalletActivity extends AppCompatActivity {
     private final int minWithdrawal = 15000;
     private int myTotalBalance;
     private int myRequest;
+    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
 
     @Override
@@ -103,20 +107,17 @@ public class WalletActivity extends AppCompatActivity {
 
                         if (id != null) {
                             reference.child("MyTransactions").child(firebaseUser.getUid()).child(id)
-                                    .setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void unused) {
-                                            lostBalance(myRequest);
-                                            HashMap<String,Object> hashMap = new HashMap<>();
-                                            hashMap.put("address",address);
-                                            hashMap.put("userId",firebaseUser.getUid());
-                                            hashMap.put("withdrawal",myRequest);
-                                            hashMap.put("time",time);
-                                            hashMap.put("id",id);
-                                            reference.child("Transactions").child(id).setValue(hashMap);
-                                            finish();
+                                    .setValue(map).addOnSuccessListener(unused -> {
+                                        lostBalance(myRequest);
+                                        HashMap<String,Object> hashMap = new HashMap<>();
+                                        hashMap.put("address",address);
+                                        hashMap.put("userId",firebaseUser.getUid());
+                                        hashMap.put("withdrawal",myRequest);
+                                        hashMap.put("time",time);
+                                        hashMap.put("id",id);
+                                        reference.child("Transactions").child(id).setValue(hashMap);
+                                        finish();
 
-                                        }
                                     }).addOnFailureListener(e -> Toast.makeText(WalletActivity.this, "Something went wrong!", Toast.LENGTH_SHORT).show());
                         }
 
@@ -201,5 +202,17 @@ public class WalletActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onStart() {
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeListener, intentFilter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(networkChangeListener);
+        super.onStop();
+    }
 
 }

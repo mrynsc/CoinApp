@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 
@@ -18,6 +20,7 @@ import com.pow.networkapp.R;
 import com.pow.networkapp.adapter.TransactionsAdapter;
 import com.pow.networkapp.databinding.ActivityTransactionsBinding;
 import com.pow.networkapp.model.Transaction;
+import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.viewmodel.TransactionsActivityViewModel;
 
 import java.util.ArrayList;
@@ -30,7 +33,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private TransactionsAdapter transactionsAdapter;
     private FirebaseUser firebaseUser;
     private ProgressDialog pd;
-
+    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
 
     @Override
@@ -113,6 +116,18 @@ public class TransactionsActivity extends AppCompatActivity {
         viewModel.getErrorMessage().observe(this, error -> pd.dismiss());
     }
 
+    @Override
+    protected void onStart() {
+        IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeListener, intentFilter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        unregisterReceiver(networkChangeListener);
+        super.onStop();
+    }
 
 
 }

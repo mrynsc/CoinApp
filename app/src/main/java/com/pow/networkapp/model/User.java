@@ -13,13 +13,14 @@ public class User {
     private String userId;
     private String referralLink;
     private int balance;
+    private int referralStatus;
 
     public User(){
 
     }
 
     public User(String username, String email, String image, int claimed, long registerDate, long lastSeen, int accountType, String userId, String referralLink
-    ,int referral,int balance) {
+    ,int referral,int balance,int referralStatus) {
         this.username = username;
         this.email = email;
         this.image = image;
@@ -31,6 +32,11 @@ public class User {
         this.referralLink = referralLink;
         this.referral = referral;
         this.balance = balance;
+        this.referralStatus =  referralStatus;
+    }
+
+    public int getReferralStatus() {
+        return referralStatus;
     }
 
     public int getBalance() {
@@ -92,6 +98,7 @@ public class User {
                 ", userId='" + userId + '\'' +
                 ", referralLink='" + referralLink + '\'' +
                 ", balance=" + balance +
+                ", referralStatus=" + referralStatus +
                 '}';
     }
 }
