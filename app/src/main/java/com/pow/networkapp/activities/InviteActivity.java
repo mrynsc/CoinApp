@@ -139,6 +139,7 @@ public class InviteActivity extends AppCompatActivity {
         binding.recyclerView.setAdapter(referralAdapter);
     }
 
+
     @SuppressLint("NotifyDataSetChanged")
     private void getInviters(){
         userArrayList.clear();
