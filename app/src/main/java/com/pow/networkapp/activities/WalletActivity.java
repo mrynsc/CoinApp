@@ -184,11 +184,7 @@ public class WalletActivity extends AppCompatActivity {
 
                             binding.earningPercent.setText(new StringBuilder().append(Math.min(a, 100)).append("%").toString());
 
-                            if (user.getBalance() >= minWithdrawal){
-                                binding.formLayout.setVisibility(View.VISIBLE);
-                            }else {
-                                binding.formLayout.setVisibility(View.GONE);
-                            }
+
 
 
                         }

@@ -26,6 +26,7 @@ import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
@@ -85,7 +86,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private InstallReferrerClient mReferrerClient;
     private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,6 +109,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         Appodeal.setBannerViewId(R.id.bannerAds);
         Appodeal.show(this,Appodeal.BANNER);
+
         Appodeal.setBannerCallbacks(new BannerCallbacks() {
             @Override
             public void onBannerLoaded(int i, boolean b) {
@@ -121,7 +122,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onBannerShown() {
-
             }
 
             @Override
@@ -168,7 +168,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onRewardedVideoClosed(boolean b) {
-
             }
 
             @Override
@@ -200,16 +199,18 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         toggle.syncState();
 
         viewModel = new ViewModelProvider(this).get(StartActivityViewModel.class);
-        new Handler().postDelayed(() -> {
-            getUserInfo();
-            pd.dismiss();
-        },100);
+
+
+
+        initViewModels();
+
+
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
 
         binding.mainProfile.startBtn.setOnClickListener(view -> {
-            if (timerState == TimerState.STOPPED) {
-                prefUtils.setStartedTime((int) getNow());
+            if (timerState == TimerState.STOPPED ) {
+                prefUtils.setStartedTime((int) viewModel.getNow(this));
                 Random r = new Random();
                 MAX_TIME = r.nextInt(tcrl - (tcrl - 30)) + (tcrl - 30);
                 binding.mainProfile.progressBarCircle.setMax(MAX_TIME);
@@ -225,8 +226,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        updateLastSeen();
-        getTotalUsers();
+
 
         binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
         binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
@@ -235,35 +235,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
     }
-    private void updateLastSeen(){
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("lastSeen",System.currentTimeMillis());
 
-        FirebaseDatabase.getInstance()
-                .getReference().child("Users").child(firebaseUser.getUid()).updateChildren(map);
-
-    }
-
-
-
-
-
-    private void getTotalUsers(){
-        FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    long users = snapshot.getChildrenCount();
-                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -309,59 +281,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         return true;
     }
 
-    private void getUserInfo(){
+    private void initViewModels(){
         viewModel.getUserInfo(this,firebaseUser.getUid(),binding);
+        viewModel.getTotalUsers(binding);
+        viewModel.updateLastSeen(firebaseUser.getUid(),pd);
     }
 
-    private long getNow(){
-        final Calendar calendar = Calendar.getInstance();
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Istanbul";
-        okhttp3.Request request = new okhttp3.Request.Builder()
-                .url(url)
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    runOnUiThread(() -> {
-                        String resStr = null;
-                        try {
-                            resStr = response.body().string();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-
-                        }
-                        try {
-                            JSONObject object = null;
-                            if (resStr != null) {
-                                object = new JSONObject(resStr);
-                            }
-                            int year = object.getInt("year");
-                            int month = object.getInt("month");
-                            int day = object.getInt("day");
-                            int hour = object.getInt("hour");
-                            int minute = object.getInt("minute");
-                            calendar.set(year, month, day,
-                                    hour, minute, 0);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-
-                        }
-                    });
-                }
-            }
-        });
-
-        return calendar.getTimeInMillis()/1000;
-
-    }
 
 //    private long getNow() {
 //        Calendar rightnow = Calendar.getInstance();
@@ -426,7 +351,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         if (startTime > 0) {
             MAX_TIME = prefUtils.getMaxTime();
             binding.mainProfile.progressBarCircle.setMax(MAX_TIME);
-            timeToStart = (int) (MAX_TIME - (getNow() - startTime));
+            timeToStart = (int) (MAX_TIME - (viewModel.getNow(this) - startTime));
             if (timeToStart <= 0) {
                 timeToStart = MAX_TIME;
                 timerState = TimerState.STOPPED;
@@ -507,29 +432,11 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         timeToStart = MAX_TIME;
         prefUtils.setStartedTime(0);
 
-        claimedBtcReceived();
+        updateBalance();
         updatingUI();
     }
 
-    private void claimedBtcReceived() {
-//        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).runTransaction(new Transaction.Handler() {
-//            @Override
-//            public Transaction.Result doTransaction(MutableData mutableData) {
-//                Long w = mutableData.getValue(Long.class);
-//                if (w == null) {
-//                    return Transaction.success(mutableData);
-//                }
-//                w = w + change;
-//                mutableData.setValue(w);
-//                return Transaction.success(mutableData);
-//            }
-//            @Override
-//            public void onComplete(DatabaseError databaseError, boolean b,
-//                                   DataSnapshot dataSnapshot) {
-//
-//            }
-//        });
-
+    private void updateBalance() {
         FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -554,11 +461,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             }
         });
-
-
-
-
-
     }
 
     private void sendPointToInviter(String userId){
@@ -594,15 +496,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         FirebaseDatabase.getInstance()
                 .getReference().child("Referrals").child(userId).child(firebaseUser.getUid())
                 .updateChildren(hashMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
+                .addOnSuccessListener(unused -> {
 
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                    }
+                }).addOnFailureListener(e -> {
                 });
     }
     @Override
@@ -673,10 +569,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         super.onPause();
     }
 
-
-
-
-
     @Override
     protected void onResume() {
         initTimer();
@@ -698,9 +590,5 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         unregisterReceiver(networkChangeListener);
         super.onStop();
     }
-
-
-
-
 
 }

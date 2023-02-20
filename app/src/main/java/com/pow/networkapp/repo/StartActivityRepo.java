@@ -1,6 +1,7 @@
 package com.pow.networkapp.repo;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
@@ -13,6 +14,18 @@ import com.pow.networkapp.activities.MainActivity;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.User;
 import com.squareup.picasso.Picasso;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Response;
 
 public class StartActivityRepo {
 
@@ -52,5 +65,85 @@ public class StartActivityRepo {
                 });
     }
 
+
+    public void getTotalUsers(ActivityStartBinding binding){
+        FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    long users = snapshot.getChildrenCount();
+                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public long getNow(Activity activity){
+        final Calendar calendar = Calendar.getInstance();
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Istanbul";
+        okhttp3.Request request = new okhttp3.Request.Builder()
+                .url(url)
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    activity.runOnUiThread(() -> {
+                        String resStr = null;
+                        try {
+                            resStr = response.body().string();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+
+                        }
+                        try {
+                            JSONObject object = null;
+                            if (resStr != null) {
+                                object = new JSONObject(resStr);
+                            }
+                            int year = object.getInt("year");
+                            int month = object.getInt("month");
+                            int day = object.getInt("day");
+                            int hour = object.getInt("hour");
+                            int minute = object.getInt("minute");
+                            calendar.set(year, month, day,
+                                    hour, minute, 0);
+
+                            System.out.println("bilgi " + calendar.toString());
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+
+                        }
+                    });
+                }
+            }
+        });
+
+        return calendar.getTimeInMillis()/1000;
+
+    }
+
+    public void updateLastSeen(String myId, ProgressDialog pd){
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("lastSeen",System.currentTimeMillis());
+
+        FirebaseDatabase.getInstance()
+                .getReference().child("Users").child(myId).updateChildren(map).addOnSuccessListener(unused -> {
+                    pd.dismiss();
+                }).addOnFailureListener(e -> {
+
+                });
+    }
 
 }

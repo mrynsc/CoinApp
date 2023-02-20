@@ -23,27 +23,27 @@
 
 
     <LinearLayout
+        android:id="@+id/transactionInfoLay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:id="@+id/transactionInfoLay"
         android:orientation="vertical">
 
         <ImageView
             android:layout_width="@dimen/_50sdp"
             android:layout_height="@dimen/_50sdp"
-            android:src="@drawable/navigation_svgrepo_com"/>
+            android:src="@drawable/navigation_svgrepo_com" />
 
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_5sdp"
             android:fontFamily="@font/allerta"
             android:text="@string/nothing_found"
-            android:layout_margin="@dimen/_5sdp"
             android:textColor="@color/black"
-            android:textSize="20sp"/>
+            android:textSize="20sp" />
 
     </LinearLayout>
 

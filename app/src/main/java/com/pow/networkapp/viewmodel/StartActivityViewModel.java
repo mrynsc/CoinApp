@@ -1,6 +1,7 @@
 package com.pow.networkapp.viewmodel;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 
 import androidx.lifecycle.ViewModel;
 
@@ -17,6 +18,18 @@ public class StartActivityViewModel extends ViewModel {
 
     public void getUserInfo(Activity activity,String userId, ActivityStartBinding binding){
         repo.getUserInfo(activity,userId,binding);
+    }
+
+    public void getTotalUsers(ActivityStartBinding binding){
+        repo.getTotalUsers(binding);
+    }
+
+    public long getNow(Activity activity){
+        return repo.getNow(activity);
+    }
+
+    public void updateLastSeen(String myId, ProgressDialog pd){
+        repo.updateLastSeen(myId,pd);
     }
 
 }

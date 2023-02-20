@@ -1,5 +1,7 @@
 package com.pow.networkapp.repo;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,57 +11,52 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.pow.networkapp.model.Referral;
 import com.pow.networkapp.model.User;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ReferralRepo {
 
     private MutableLiveData<String> errorMessage;
-    private MutableLiveData<List<User>> mutableLiveData;
-    private List<User> userList;
+    private MutableLiveData<List<Referral>> mutableLiveData;
+    private List<Referral> referralList;
 
     public ReferralRepo(){
         errorMessage = new MutableLiveData<>();
         mutableLiveData = new MutableLiveData<>();
-        userList = new ArrayList<>();
+        referralList = new ArrayList<>();
 
     }
 
-    public void getReferral(String link){
-        Query query = FirebaseDatabase.getInstance().getReference().child("Users")
-                .orderByChild("referralLink").equalTo(link);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                userList.clear();
-                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    if (snapshot.exists()){
-                        User user = dataSnapshot.getValue(User.class);
-
-                        if (user!=null){
-                            userList.add(user);
+    public void getInviters(String myId){
+        FirebaseDatabase.getInstance().getReference().child("Referrals").child(myId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot dataSnapshot :snapshot.getChildren()){
+                            if (snapshot.exists()){
+                                Referral referral = dataSnapshot.getValue(Referral.class);
+                                if (referral!=null){
+                                    referralList.add(referral);
+                                }
+                            }
                         }
-
+                        mutableLiveData.postValue(referralList);
                     }
 
-                }
-                mutableLiveData.postValue(userList);
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+                    }
+                });
     }
 
 
 
-
-
-    public LiveData<List<User>> getUser() {
+    public LiveData<List<Referral>> getUsers() {
         return mutableLiveData;
     }
 

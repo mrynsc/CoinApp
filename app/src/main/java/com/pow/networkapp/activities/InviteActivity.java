@@ -2,11 +2,13 @@ package com.pow.networkapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
@@ -50,6 +52,7 @@ public class InviteActivity extends AppCompatActivity {
     private ReferralAdapter referralAdapter;
 
     private ReferralViewModel viewModel;
+    private ProgressDialog pd;
 
     private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
@@ -62,6 +65,12 @@ public class InviteActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
+
+
+        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd.setCancelable(false);
+        pd.show();
+
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -101,11 +110,10 @@ public class InviteActivity extends AppCompatActivity {
         });
 
         initRecycler();
-        getReferralLink();
-        getReferrals();
+        getInviters();
 
         binding.copyBtn.setOnClickListener(view -> {
-            String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin Use my referral link. ")
+            String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin. Use my referral link. ")
 
                     .append("https://play.google.com/store/apps/details?id=com.pow.networkapp&referrer=").append(firebaseUser.getUid()).toString();
             Intent intent = new Intent(Intent.ACTION_SEND);
@@ -121,29 +129,6 @@ public class InviteActivity extends AppCompatActivity {
 
     }
 
-    private void getReferralLink(){
-        FirebaseDatabase.getInstance()
-                .getReference().child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            User user = snapshot.getValue(User.class);
-
-                            if (user != null) {
-                                binding.referralLink.setText(user.getReferralLink());
-
-                            }
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-    }
-
 
 
     private void initRecycler(){
@@ -154,33 +139,24 @@ public class InviteActivity extends AppCompatActivity {
         binding.recyclerView.setAdapter(referralAdapter);
     }
 
-    private void getReferrals(){
-        FirebaseDatabase.getInstance().getReference().child("Referrals").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot dataSnapshot :snapshot.getChildren()){
-                    if (snapshot.exists()){
-                        Referral referral = dataSnapshot.getValue(Referral.class);
-                        userArrayList.add(referral);
-
-                    }
-                }
-                referralAdapter.notifyDataSetChanged();
-                Collections.reverse(userArrayList);
-                if (userArrayList.size()==0){
-                    binding.nothingLay.setVisibility(View.VISIBLE);
-                }else{
-                    binding.nothingLay.setVisibility(View.GONE);
-                }
+    @SuppressLint("NotifyDataSetChanged")
+    private void getInviters(){
+        userArrayList.clear();
+        viewModel.getInviters(firebaseUser.getUid());
+        viewModel.getUsers().observe(this, posts -> {
+            userArrayList.addAll(posts);
+            pd.dismiss();
+            referralAdapter.notifyDataSetChanged();
+            if (userArrayList.size()==0){
+                pd.dismiss();
+                binding.nothingLay.setVisibility(View.VISIBLE);
+            }else{
+                binding.nothingLay.setVisibility(View.GONE);
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
         });
+        viewModel.getErrorMessage().observe(this, System.out::println);
     }
-
 
     @Override
     protected void onStart() {

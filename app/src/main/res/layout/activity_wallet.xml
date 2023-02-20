@@ -35,14 +35,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/_10sdp"
-
             >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="BALANCE"
-                android:textSize="18sp"
+                android:text="@string/balance"
+                android:textSize="22sp"
                 android:textColor="@color/white"
                 android:fontFamily="@font/allerta"
                 android:id="@+id/balanceInfo"
@@ -55,7 +54,7 @@
                 android:text=""
                 android:textColor="@color/white"
                 android:fontFamily="@font/allerta"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:layout_below="@id/balanceInfo"
                 android:layout_centerVertical="true"
@@ -310,6 +309,7 @@
         app:cardCornerRadius="@dimen/_4sdp"
         app:cardBackgroundColor="@color/app_purple"
         android:id="@+id/formLayout"
+        android:visibility="gone"
         app:contentPadding="@dimen/_4sdp"
         android:layout_below="@id/secondlay"
         android:layout_margin="@dimen/_4sdp">
@@ -329,6 +329,7 @@
                 android:hint="Address"
                 android:padding="@dimen/_4sdp"
                 android:textColor="@color/white"
+                android:backgroundTint="@color/white"
                 android:textColorHint="@color/white" />
 
 
@@ -340,6 +341,7 @@
                 android:background="@drawable/rect_border"
                 android:hint="Withdrawal"
                 android:inputType="number"
+                android:backgroundTint="@color/white"
                 android:padding="@dimen/_4sdp"
                 android:textColor="@color/white"
                 android:textColorHint="@color/white" />

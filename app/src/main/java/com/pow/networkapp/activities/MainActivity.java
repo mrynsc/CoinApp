@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Toast;
 
 import com.onesignal.OneSignal;
@@ -151,7 +152,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private void addToDatabase(FirebaseUser firebaseUser) {
 
-        Query query = FirebaseDatabase.getInstance("https://pownetwork-ab594-default-rtdb.europe-west1.firebasedatabase.app/")
+        Query query = FirebaseDatabase.getInstance()
                 .getReference().child("Users")
                 .orderByChild("email").equalTo(firebaseUser.getEmail());
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -159,9 +160,10 @@ public class MainActivity extends AppCompatActivity  {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.getChildrenCount()<=0){
                     String userId = firebaseAuth.getCurrentUser().getUid();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance("https://pownetwork-ab594-default-rtdb.europe-west1.firebasedatabase.app/")
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance()
                             .getReference().child("Users").child(userId);
 
+                    String deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
                     HashMap<String,Object> map = new HashMap<>();
                     map.put("username",firebaseUser.getDisplayName());
                     map.put("email",firebaseUser.getEmail());
@@ -169,6 +171,7 @@ public class MainActivity extends AppCompatActivity  {
                     map.put("lastSeen",System.currentTimeMillis());
                     map.put("claimed",0);
                     map.put("referral",0);
+                    map.put("deviceId",deviceId);
                     map.put("balance",0);
                     map.put("userId",userId);
                     map.put("image",firebaseUser.getPhotoUrl().toString());

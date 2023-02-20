@@ -3,12 +3,14 @@ package com.pow.networkapp.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
+import com.appodeal.ads.RewardedVideoCallbacks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.pow.networkapp.R;
@@ -35,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
         Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
+        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.REWARDED_VIDEO);
 
         Appodeal.setBannerViewId(R.id.bannerAds);
         Appodeal.show(this,Appodeal.BANNER);
@@ -75,12 +78,64 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
+
+        Appodeal.setRewardedVideoCallbacks(new RewardedVideoCallbacks() {
+            @Override
+            public void onRewardedVideoLoaded(boolean b) {
+
+            }
+
+            @Override
+            public void onRewardedVideoFailedToLoad() {
+            }
+
+            @Override
+            public void onRewardedVideoShown() {
+
+            }
+
+            @Override
+            public void onRewardedVideoShowFailed() {
+
+            }
+
+            @Override
+            public void onRewardedVideoFinished(double v, String s) {
+
+            }
+
+            @Override
+            public void onRewardedVideoClosed(boolean b) {
+            }
+
+            @Override
+            public void onRewardedVideoExpired() {
+
+            }
+
+            @Override
+            public void onRewardedVideoClicked() {
+
+            }
+        });
+
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         viewModel = new ViewModelProvider(this).get(ProfileActivityViewModel.class);
         viewModel.getUserInfo(firebaseUser.getUid(),binding);
 
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
+            Appodeal.show(this, Appodeal.REWARDED_VIDEO);
+            finish();
+        } else {
+            finish();
+        }
     }
 
 

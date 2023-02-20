@@ -10,7 +10,7 @@
     <string name="coin">Claimed</string>
     <string name="referral">Referral</string>
     <string name="invite_amp_earn"><![CDATA[Invite & Earn]]></string>
-    <string name="wallet">Wallet</string>
+    <string name="wallet">Balance</string>
     <string name="transactions">Transactions</string>
     <string name="announcement">Announcements</string>
     <string name="notifications">Notifications</string>
@@ -32,5 +32,6 @@
     <string name="use_your_invite_code">Invite Code</string>
     <string name="appodeal_app_id">c704388c752f9dd907e6e252845a94bc9bbbe1807ad89f0e</string>
     <string name="announcement_you_get_30_pow_when_you_press_start_once_every_4_hours_you_earn_50_pow_by_inviting_your_friends">You get 30 POW when you press start once every 4 hours. You earn 50 POW by inviting your friends.</string>
+    <string name="balance">BALANCE</string>
 
 </resources>

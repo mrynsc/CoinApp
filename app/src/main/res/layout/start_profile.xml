@@ -252,7 +252,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="@dimen/_5sdp"
                     android:id="@+id/energy_count"
-                    android:text="Time to Claim"
+                    android:text="Get Energy"
                     android:fontFamily="@font/allerta"
                     android:textColor="@color/black"
                     android:textSize="13sp"
