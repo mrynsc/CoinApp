@@ -28,8 +28,8 @@ public class StartActivityViewModel extends ViewModel {
         return repo.getNow(activity);
     }
 
-    public void updateLastSeen(String myId, ProgressDialog pd){
-        repo.updateLastSeen(myId,pd);
+    public void updateLastSeen(String myId){
+        repo.updateLastSeen(myId);
     }
 
 }

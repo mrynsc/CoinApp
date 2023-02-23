@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
@@ -32,26 +33,31 @@ public class ReferralRepo {
     }
 
     public void getInviters(String myId){
-        FirebaseDatabase.getInstance().getReference().child("Referrals").child(myId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        for (DataSnapshot dataSnapshot :snapshot.getChildren()){
-                            if (snapshot.exists()){
-                                Referral referral = dataSnapshot.getValue(Referral.class);
-                                if (referral!=null){
-                                    referralList.add(referral);
+        try {
+            FirebaseDatabase.getInstance().getReference().child("Referrals").child(myId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot :snapshot.getChildren()){
+                                if (snapshot.exists()){
+                                    Referral referral = dataSnapshot.getValue(Referral.class);
+                                    if (referral!=null){
+                                        referralList.add(referral);
+                                    }
                                 }
                             }
+                            mutableLiveData.postValue(referralList);
                         }
-                        mutableLiveData.postValue(referralList);
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
+                        }
+                    });
+        }catch (DatabaseException e){
+            e.printStackTrace();
+        }
+
     }
 
 

@@ -9,9 +9,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -48,39 +49,8 @@ public class WalletActivity extends AppCompatActivity {
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
 
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
-        });
-
+        loadBanner();
         getBalanceInfo();
 
         if (binding.formLayout.getVisibility()==View.VISIBLE){
@@ -137,6 +107,17 @@ public class WalletActivity extends AppCompatActivity {
 
         }
 
+    }
+
+
+    private void loadBanner(){
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
     }
 
     private void lostBalance(int lostValue){

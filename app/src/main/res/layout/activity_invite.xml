@@ -25,23 +25,23 @@
         >
 
 
-
         <androidx.cardview.widget.CardView
+            android:id="@+id/invite_widget"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_4sdp"
-            app:cardCornerRadius="@dimen/_4sdp"
-            android:id="@+id/invite_widget"
+            android:layout_marginStart="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:layout_marginBottom="@dimen/_4sdp"
             app:cardBackgroundColor="@color/app_purple"
+            app:cardCornerRadius="@dimen/_4sdp"
             app:cardUseCompatPadding="true">
 
 
-
-
             <RelativeLayout
+                android:id="@+id/bd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/bd"
                 android:layout_marginBottom="@dimen/_4sdp"
                 android:background="?android:attr/selectableItemBackground"
                 android:orientation="vertical">
@@ -51,7 +51,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/iBody"
-                    android:visibility="gone"
                     android:layout_marginStart="@dimen/_16sdp"
                     android:layout_marginTop="@dimen/_16sdp"
                     android:layout_marginEnd="@dimen/_16sdp"
@@ -59,7 +58,8 @@
                     android:fontFamily="@font/allerta"
                     android:text="afs"
                     android:textColor="@color/white"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/iTitle"
@@ -69,22 +69,22 @@
                     android:layout_marginTop="@dimen/_8sdp"
                     android:layout_marginEnd="@dimen/_8sdp"
                     android:layout_marginBottom="@dimen/_8sdp"
-                    android:text="@string/invite_your_friends"
                     android:fontFamily="@font/allerta"
+                    android:text="@string/invite_your_friends"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/iBody"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/invite_your_friend_and_earn_50_coin"
-                    android:id="@+id/iBody"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/allerta"
-                    android:textSize="13sp"
                     android:layout_below="@id/iTitle"
-                    android:layout_marginStart="@dimen/_8sdp"/>
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:fontFamily="@font/allerta"
+                    android:text="@string/invite_your_friend_and_earn_50_coin"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
 
 
                 <com.google.android.material.button.MaterialButton
@@ -92,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/iBody"
-                    android:layout_marginStart="@dimen/_5sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_5sdp"
                     android:layout_marginEnd="@dimen/_5sdp"
                     android:layout_marginBottom="@dimen/_5sdp"
@@ -100,21 +100,17 @@
                     android:text="INVITE" />
 
 
-
                 <ImageView
                     android:layout_width="@dimen/_90sdp"
                     android:layout_height="@dimen/_90sdp"
-                    android:textStyle="bold"
-                    android:src="@drawable/powlogo"
+                    android:layout_alignParentEnd="true"
                     android:background="?selectableItemBackgroundBorderless"
                     android:fontFamily="@font/allerta"
-                    android:layout_toEndOf="@id/iBody"
-                    android:layout_marginBottom="@dimen/_5sdp"/>
-
+                    android:src="@drawable/powlogo"
+                    android:textStyle="bold" />
 
 
             </RelativeLayout>
-
 
 
         </androidx.cardview.widget.CardView>
@@ -125,7 +121,6 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
 
             android:id="@+id/rc_header"
             android:layout_below="@id/invite_widget">
@@ -134,7 +129,7 @@
                 android:id="@+id/headerText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_3sdp"
+                android:layout_marginStart="@dimen/_4sdp"
                 android:layout_marginTop="@dimen/_3sdp"
                 android:layout_marginEnd="@dimen/_3sdp"
                 android:layout_marginBottom="@dimen/_3sdp"
@@ -148,6 +143,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/headerText"
                 android:id="@+id/recyclerView"/>
+
+
 
 
         </RelativeLayout>
@@ -186,14 +183,15 @@
 
     </LinearLayout>
 
-
-    <com.appodeal.ads.BannerView
-        android:id="@+id/bannerAds"
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
         android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        />
-
+        app:adSize="BANNER"
+        android:layout_centerHorizontal="true"
+        app:adUnitId="@string/bannerId" />
 
 
 </RelativeLayout>

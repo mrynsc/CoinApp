@@ -16,10 +16,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -76,41 +76,10 @@ public class InviteActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(ReferralViewModel.class);
 
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
-
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
-        });
 
         initRecycler();
         getInviters();
+        loadBanner();
 
         binding.copyBtn.setOnClickListener(view -> {
             String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin. Use my referral link. ")
@@ -129,7 +98,15 @@ public class InviteActivity extends AppCompatActivity {
 
     }
 
-
+    private void loadBanner(){
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
+    }
 
     private void initRecycler(){
         userArrayList = new ArrayList<>();
@@ -138,7 +115,6 @@ public class InviteActivity extends AppCompatActivity {
         referralAdapter = new ReferralAdapter(userArrayList,this);
         binding.recyclerView.setAdapter(referralAdapter);
     }
-
 
     @SuppressLint("NotifyDataSetChanged")
     private void getInviters(){
@@ -151,8 +127,12 @@ public class InviteActivity extends AppCompatActivity {
             if (userArrayList.size()==0){
                 pd.dismiss();
                 binding.nothingLay.setVisibility(View.VISIBLE);
+                binding.headerText.setVisibility(View.GONE);
             }else{
                 binding.nothingLay.setVisibility(View.GONE);
+                binding.headerText.setVisibility(View.VISIBLE);
+                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
+
             }
 
         });

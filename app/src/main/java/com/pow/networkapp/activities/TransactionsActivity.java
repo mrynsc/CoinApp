@@ -12,8 +12,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.pow.networkapp.R;
@@ -52,38 +50,7 @@ public class TransactionsActivity extends AppCompatActivity {
         pd = new ProgressDialog(this,R.style.CustomDialog);
         pd.setCanceledOnTouchOutside(false);
         pd.show();
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
 
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
-        });
         initRecycler();
         getTransactions();
 

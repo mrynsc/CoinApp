@@ -236,13 +236,14 @@
                     android:id="@+id/startBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rect_border"
-                    android:padding="@dimen/_4sdp"
                     android:layout_centerInParent="true"
+                    android:background="@drawable/rect_border"
+                    android:backgroundTint="@color/app_purple"
                     android:fontFamily="@font/allerta"
-                    android:textSize="16sp"
+                    android:padding="@dimen/_4sdp"
                     android:text="@string/start"
                     android:textColor="@color/black"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -250,14 +251,14 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/startBtn"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginTop="@dimen/_8sdp"
                     android:id="@+id/energy_count"
                     android:text="Get Energy"
                     android:fontFamily="@font/allerta"
-                    android:textColor="@color/black"
-                    android:textSize="13sp"
+                    android:textColor="@color/app_purple"
+                    android:textSize="14sp"
                     android:textStyle="bold"
-                     />
+                    />
 
                 <ImageView
                     android:id="@+id/energyStatusImage"
@@ -265,9 +266,8 @@
                     android:layout_height="@dimen/_30sdp"
                     android:layout_below="@id/energy_count"
                     android:layout_centerInParent="true"
-                    android:layout_marginTop="@dimen/_7sdp"
-                    android:src="@drawable/high_voltage_svgrepo_com"
-                     />
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:src="@drawable/high_voltage_svgrepo_com" />
 
 
 
@@ -349,15 +349,13 @@
     </LinearLayout>
 
 
-
-    <com.appodeal.ads.BannerView
-        android:id="@+id/bannerAds"
-        android:layout_width="match_parent"
-        android:layout_alignParentBottom="true"
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        />
-
-
+        android:layout_alignParentBottom="true"
+        app:adSize="SMART_BANNER"
+        app:adUnitId="@string/bannerId" />
 
 
 </RelativeLayout>

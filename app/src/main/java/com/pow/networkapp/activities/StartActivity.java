@@ -26,17 +26,21 @@ import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
-import com.appodeal.ads.InterstitialCallbacks;
-import com.appodeal.ads.RewardedVideoCallbacks;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -52,20 +56,13 @@ import com.pow.networkapp.R;
 import com.pow.networkapp.viewmodel.StartActivityViewModel;
 import com.pow.networkapp.util.TimeReceiver;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
 
 import io.github.muddz.styleabletoast.StyleableToast;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Response;
+
 
 public class StartActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, InstallReferrerStateListener {
 
@@ -79,12 +76,14 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private PrefUtils prefUtils;
     private int MAX_TIME = 14500;
     private int tcrl = 14500;
-    private int en = 0;
     private int timeToStart;
     private CountDownTimer timer1;
     private ProgressDialog pd;
     private InstallReferrerClient mReferrerClient;
     private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+
+    private int energyStatus = 0;
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,84 +101,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         prefUtils = new PrefUtils(getApplicationContext());
-
-
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.REWARDED_VIDEO);
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
-
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-
-            }
-
-            @Override
-            public void onBannerShown() {
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
-        });
-
-
-
-        Appodeal.setRewardedVideoCallbacks(new RewardedVideoCallbacks() {
-            @Override
-            public void onRewardedVideoLoaded(boolean b) {
-
-            }
-
-            @Override
-            public void onRewardedVideoFailedToLoad() {
-            }
-
-            @Override
-            public void onRewardedVideoShown() {
-
-            }
-
-            @Override
-            public void onRewardedVideoShowFailed() {
-
-            }
-
-            @Override
-            public void onRewardedVideoFinished(double v, String s) {
-
-            }
-
-            @Override
-            public void onRewardedVideoClosed(boolean b) {
-            }
-
-            @Override
-            public void onRewardedVideoExpired() {
-
-            }
-
-            @Override
-            public void onRewardedVideoClicked() {
-
-            }
-        });
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -204,12 +125,19 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         initViewModels();
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadBanner();
+                loadAds();
+            }
+        },100);
 
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
 
         binding.mainProfile.startBtn.setOnClickListener(view -> {
-            if (timerState == TimerState.STOPPED ) {
+            if (timerState == TimerState.STOPPED && energyStatus == 1) {
                 prefUtils.setStartedTime((int) viewModel.getNow(this));
                 Random r = new Random();
                 MAX_TIME = r.nextInt(tcrl - (tcrl - 30)) + (tcrl - 30);
@@ -223,8 +151,18 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
 
+            }else {
+                StyleableToast.makeText(this,"Please get energy first!",R.style.customToast).show();
             }
         });
+
+        binding.mainProfile.energyCount.setOnClickListener(view -> {
+            if (mInterstitialAd !=null){
+                mInterstitialAd.show(this);
+            }else {
+                StyleableToast.makeText(this,"Please try again!",R.style.customToast).show();
+            }
+        } );
 
 
 
@@ -237,25 +175,90 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     }
 
 
+    private void loadAds(){
+        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(StartActivity.this, getString(R.string.intersId), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                        System.out.println("hata "  + loadAdError.getMessage());
+                        pd.dismiss();
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        pd.dismiss();
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdClicked() {
+                                super.onAdClicked();
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                energyStatus = 1;
+                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdImpression() {
+                                super.onAdImpression();
+                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+
+                });
+    }
+
+
+    private void loadBanner(){
+        MobileAds.initialize(StartActivity.this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.mainProfile.adView.loadAd(adRequest);
+    }
+
+
+
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navInvite:
-                if(Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
-                    Appodeal.show(this, Appodeal.REWARDED_VIDEO);
-                    startActivity(new Intent(this,InviteActivity.class));
-                }else {
-                    startActivity(new Intent(this,InviteActivity.class));
-                }
+                startActivity(new Intent(this,InviteActivity.class));
+
                 break;
             case R.id.navWallet:
-                if(Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
-                    Appodeal.show(this, Appodeal.REWARDED_VIDEO);
-                    startActivity(new Intent(this,WalletActivity.class));
-                }else {
-                    startActivity(new Intent(this,WalletActivity.class));
-                }
+                startActivity(new Intent(this,WalletActivity.class));
+
                 break;
 //            case R.id.navTransactions:
 //                startActivity(new Intent(this,TransactionsActivity.class));
@@ -284,7 +287,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private void initViewModels(){
         viewModel.getUserInfo(this,firebaseUser.getUid(),binding);
         viewModel.getTotalUsers(binding);
-        viewModel.updateLastSeen(firebaseUser.getUid(),pd);
+        viewModel.updateLastSeen(firebaseUser.getUid());
     }
 
 
@@ -309,7 +312,10 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             ss.setSpan(new RelativeSizeSpan(0.2f), 5, 6, 0);
             binding.mainProfile.startBtn.setText(ss);
             binding.mainProfile.progressBarCircle.setProgress(MAX_TIME - timeToStart);
+            binding.mainProfile.startBtn.setEnabled(false);
             binding.mainProfile.energyCount.setText("Wait for Next Claim!");
+            binding.mainProfile.energyCount.setEnabled(false);
+
             binding.mainProfile.energyStatusImage.setImageResource(R.drawable.hourglass_done_svgrepo_com);
         } else {
 
@@ -317,7 +323,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 timer1.cancel();
 
             binding.mainProfile.startBtn.setText("START");
-            binding.mainProfile.energyCount.setText("Time to Claim!");
+            binding.mainProfile.energyCount.setText("GET ENERGY!");
             binding.mainProfile.energyStatusImage.setImageResource(R.drawable.high_voltage_svgrepo_com);
 
         }
@@ -328,7 +334,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
     private void startTimer(int sec) {
-        final int t = sec;
         sec = sec * 1000;
         timer1 = new CountDownTimer(sec, 1000) {
             public void onTick(long millisUntilFinished) {
@@ -338,7 +343,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             public void onFinish() {
                 timerState = TimerState.STOPPED;
 
-                if(en==1) en=0;
                 onTimerFinish();
                 updatingUI();
 

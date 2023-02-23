@@ -1,5 +1,6 @@
 package com.pow.networkapp.repo;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -19,8 +20,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -65,6 +70,14 @@ public class StartActivityRepo {
                 });
     }
 
+    public static String coolNumberFormat(long count) {
+        if (count < 1000) return "" + count;
+        int exp = (int) (Math.log(count) / Math.log(1000));
+        DecimalFormat format = new DecimalFormat("0.#");
+        String value = format.format(count / Math.pow(1000, exp));
+        return String.format("%s%c", value, "KMBTPE".charAt(exp - 1));
+    }
+
 
     public void getTotalUsers(ActivityStartBinding binding){
         FirebaseDatabase.getInstance().getReference().child("Users").addValueEventListener(new ValueEventListener() {
@@ -72,7 +85,7 @@ public class StartActivityRepo {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     long users = snapshot.getChildrenCount();
-                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
+                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(coolNumberFormat(users)).toString());
                 }
             }
 
@@ -134,15 +147,13 @@ public class StartActivityRepo {
 
     }
 
-    public void updateLastSeen(String myId, ProgressDialog pd){
+    public void updateLastSeen(String myId){
         HashMap<String,Object> map = new HashMap<>();
         map.put("lastSeen",System.currentTimeMillis());
 
         FirebaseDatabase.getInstance()
                 .getReference().child("Users").child(myId).updateChildren(map).addOnSuccessListener(unused -> {
-                    pd.dismiss();
                 }).addOnFailureListener(e -> {
-
                 });
     }
 
