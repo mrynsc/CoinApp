@@ -55,11 +55,8 @@ public class ReferralAdapter extends RecyclerView.Adapter<ReferralAdapter.MyHold
         Referral referral = referralArrayList.get(position);
 
 
-
-
-
-
         getUserData(referral,holder);
+
 
     }
 

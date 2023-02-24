@@ -20,8 +20,8 @@ import java.util.List;
 
 public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
 
-    private List<Anons> anonsArrayList;
-    private Context context;
+    private final List<Anons> anonsArrayList;
+    private final Context context;
 
     public AnonsAdapter(List<Anons>anonsArrayList,Context context){
         this.anonsArrayList= anonsArrayList;
@@ -53,7 +53,6 @@ public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
         holder.recyclerRowBinding.titleText.setText(anons.getTitle());
         holder.recyclerRowBinding.descText.setText(anons.getDescription());
         holder.recyclerRowBinding.timeText.setText(convertTime(anons.getTime()));
-
 
 
 

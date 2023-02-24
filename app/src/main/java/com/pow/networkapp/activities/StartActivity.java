@@ -49,6 +49,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pow.networkapp.databinding.ActivityStartBinding;
+import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.util.PrefUtils;
@@ -186,14 +187,13 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         mInterstitialAd = null;
-                        System.out.println("hata "  + loadAdError.getMessage());
                         pd.dismiss();
                     }
 
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        mInterstitialAd = interstitialAd;
                         pd.dismiss();
+                        mInterstitialAd = interstitialAd;
                         mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                             @Override
                             public void onAdClicked() {
@@ -436,35 +436,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         timeToStart = MAX_TIME;
         prefUtils.setStartedTime(0);
 
-        updateBalance();
+        viewModel.updateBalance(firebaseUser.getUid());
         updatingUI();
-    }
-
-    private void updateBalance() {
-        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
-
-                    HashMap<String,Object> map = new HashMap<>();
-                    if (user != null) {
-                        map.put("claimed",user.getClaimed() + 30);
-                        map.put("balance",user.getBalance() + 30);
-
-                    }
-                    FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
-                            .updateChildren(map);
-
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     private void sendPointToInviter(String userId){
@@ -475,11 +448,28 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     User user = snapshot.getValue(User.class);
                     HashMap<String,Object> map = new HashMap<>();
                     if (user!=null){
-                        map.put("balance", user.getBalance() + 50);
-                        map.put("referral",user.getReferral() + 50);
+                        FirebaseDatabase.getInstance().getReference().child("Points").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    Point point = snapshot.getValue(Point.class);
+                                    if (point!=null){
+                                        map.put("balance", user.getBalance() + point.getInvitePoint());
+                                        map.put("referral",user.getReferral() + point.getInvitePoint());
+                                        FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
+                                                .updateChildren(map);
+
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
                     }
-                    FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
-                            .updateChildren(map);
 
                 }
             }

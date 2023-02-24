@@ -32,4 +32,8 @@ public class StartActivityViewModel extends ViewModel {
         repo.updateLastSeen(myId);
     }
 
+    public void updateBalance(String myId){
+        repo.updateBalance(myId);
+    }
+
 }

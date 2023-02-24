@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.pow.networkapp.activities.MainActivity;
 import com.pow.networkapp.databinding.ActivityStartBinding;
+import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
 import com.squareup.picasso.Picasso;
 
@@ -70,13 +71,6 @@ public class StartActivityRepo {
                 });
     }
 
-    public static String coolNumberFormat(long count) {
-        if (count < 1000) return "" + count;
-        int exp = (int) (Math.log(count) / Math.log(1000));
-        DecimalFormat format = new DecimalFormat("0.#");
-        String value = format.format(count / Math.pow(1000, exp));
-        return String.format("%s%c", value, "KMBTPE".charAt(exp - 1));
-    }
 
 
     public void getTotalUsers(ActivityStartBinding binding){
@@ -85,7 +79,7 @@ public class StartActivityRepo {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     long users = snapshot.getChildrenCount();
-                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(coolNumberFormat(users)).toString());
+                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
                 }
             }
 
@@ -146,6 +140,52 @@ public class StartActivityRepo {
         return calendar.getTimeInMillis()/1000;
 
     }
+
+
+    public void updateBalance(String myId){
+        FirebaseDatabase.getInstance().getReference().child("Users").child(myId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    User user = snapshot.getValue(User.class);
+
+                    if (user != null) {
+                        HashMap<String,Object> map = new HashMap<>();
+                        FirebaseDatabase.getInstance().getReference().child("Points").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    Point point = snapshot.getValue(Point.class);
+                                    if (point!=null){
+                                        map.put("claimed",user.getClaimed() + point.getCounterPoint());
+                                        map.put("balance",user.getBalance() + point.getCounterPoint());
+                                        FirebaseDatabase.getInstance().getReference().child("Users").child(myId)
+                                                .updateChildren(map);
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+
+
+                    }
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     public void updateLastSeen(String myId){
         HashMap<String,Object> map = new HashMap<>();
