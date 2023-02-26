@@ -126,7 +126,6 @@ public class StartActivityRepo {
                             calendar.set(year, month, day,
                                     hour, minute, 0);
 
-                            System.out.println("bilgi " + calendar.toString());
 
                         } catch (JSONException e) {
                             e.printStackTrace();

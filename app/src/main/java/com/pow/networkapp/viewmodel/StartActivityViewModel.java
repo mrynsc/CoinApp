@@ -1,7 +1,6 @@
 package com.pow.networkapp.viewmodel;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 
 import androidx.lifecycle.ViewModel;
 

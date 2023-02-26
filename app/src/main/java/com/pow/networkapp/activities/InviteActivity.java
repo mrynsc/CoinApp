@@ -16,10 +16,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +61,10 @@ public class InviteActivity extends AppCompatActivity {
 
     private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
+    private InterstitialAd mInterstitialAd;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +89,7 @@ public class InviteActivity extends AppCompatActivity {
         initRecycler();
         getInviters();
         loadBanner();
+        loadAds();
 
         binding.copyBtn.setOnClickListener(view -> {
             String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin. Use my referral link. ")
@@ -96,6 +106,63 @@ public class InviteActivity extends AppCompatActivity {
         });
 
 
+    }
+
+
+    private void loadAds(){
+        MobileAds.initialize(InviteActivity.this, initializationStatus -> {
+
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(InviteActivity.this, getString(R.string.intersId), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdClicked() {
+                                super.onAdClicked();
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdImpression() {
+                                super.onAdImpression();
+                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+
+                });
     }
 
     private void loadBanner(){
@@ -152,6 +219,13 @@ public class InviteActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mInterstitialAd!=null){
+            mInterstitialAd.show(this);
+        }
 
+    }
 
 }

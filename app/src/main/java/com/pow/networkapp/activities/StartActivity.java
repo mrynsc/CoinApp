@@ -26,10 +26,13 @@ import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.BannerCallbacks;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -56,6 +59,8 @@ import com.pow.networkapp.util.PrefUtils;
 import com.pow.networkapp.R;
 import com.pow.networkapp.viewmodel.StartActivityViewModel;
 import com.pow.networkapp.util.TimeReceiver;
+
+import org.aviran.cookiebar2.CookieBar;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -125,14 +130,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
         initViewModels();
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                loadBanner();
-                loadAds();
-            }
-        },100);
+        loadBanner();
+        new Handler().postDelayed(this::loadAds,50);
 
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
@@ -153,7 +152,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
             }else {
-                StyleableToast.makeText(this,"Please get energy first!",R.style.customToast).show();
+                CookieBar.build(this)
+                        .setTitle("Please Get Energy First!")
+                        .setMessage("Click on Get Energy.")
+                        .setBackgroundColor(R.color.app_purple)
+                        .setCookiePosition(CookieBar.TOP)
+                        .show();
             }
         });
 
@@ -237,13 +241,49 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
     private void loadBanner(){
-        MobileAds.initialize(StartActivity.this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
+        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+            pd.dismiss();
         });
         AdRequest adRequest = new AdRequest.Builder().build();
         binding.mainProfile.adView.loadAd(adRequest);
+
+//        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
+//        Appodeal.show(this,Appodeal.BANNER);
+//        Appodeal.isLoaded(Appodeal.BANNER);
+//        Appodeal.setBannerCallbacks(new BannerCallbacks() {
+//            @Override
+//            public void onBannerLoaded(int i, boolean b) {
+//            }
+//
+//            @Override
+//            public void onBannerFailedToLoad() {
+//
+//            }
+//
+//            @Override
+//            public void onBannerShown() {
+//
+//            }
+//
+//            @Override
+//            public void onBannerShowFailed() {
+//
+//            }
+//
+//            @Override
+//            public void onBannerClicked() {
+//
+//            }
+//
+//            @Override
+//            public void onBannerExpired() {
+//
+//            }
+//        });
+//
+
+
+
     }
 
 

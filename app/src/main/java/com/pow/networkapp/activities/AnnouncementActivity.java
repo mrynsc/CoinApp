@@ -2,9 +2,12 @@ package com.pow.networkapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.View;
 
@@ -20,6 +23,7 @@ import com.pow.networkapp.R;
 import com.pow.networkapp.adapter.AnonsAdapter;
 import com.pow.networkapp.databinding.ActivityAnnouncementBinding;
 import com.pow.networkapp.model.Anons;
+import com.pow.networkapp.viewmodel.AnonsViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +34,9 @@ public class AnnouncementActivity extends AppCompatActivity {
     private ActivityAnnouncementBinding binding;
     private List<Anons> anonsList;
     private AnonsAdapter anonsAdapter;
+    private AnonsViewModel viewModel;
+    private ProgressDialog pd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,12 @@ public class AnnouncementActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
+        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd.setCancelable(false);
+        pd.show();
+
+
+        viewModel = new ViewModelProvider(this).get(AnonsViewModel.class);
 
         initRecycler();
         getAnnouncements();
@@ -59,35 +72,21 @@ public class AnnouncementActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private void getAnnouncements(){
-        FirebaseDatabase.getInstance().getReference().child("Announcements").addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()){
-                    if (snapshot.exists()){
-                        Anons anons = ds.getValue(Anons.class);
-
-                        if (anons!=null && anons.getStatus()==0){
-                            anonsList.add(anons);
-                        }
-                    }
-                }
-                anonsAdapter.notifyDataSetChanged();
-                Collections.reverse(anonsList);
-                if (anonsList.size()==0){
-                    binding.lottieAnimation.setVisibility(View.VISIBLE);
-                }else {
-                    binding.lottieAnimation.setVisibility(View.GONE);
-                }
-
+        viewModel.getAnnouncements();
+        viewModel.getAllAnnouncements().observe((LifecycleOwner) this, posts -> {
+            pd.dismiss();
+            anonsList.addAll(posts);
+            anonsAdapter.notifyDataSetChanged();
+            if (anonsList.size()==0){
+                binding.lottieAnimation.setVisibility(View.VISIBLE);
+            }else {
+                binding.lottieAnimation.setVisibility(View.GONE);
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
         });
+        viewModel.getErrorMessage().observe(this, error -> pd.dismiss());
     }
 
 

@@ -12,6 +12,10 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.pow.networkapp.R;
@@ -45,14 +49,31 @@ public class ProfileActivity extends AppCompatActivity {
         viewModel.getUserInfo(firebaseUser.getUid(),binding);
 
         loadBanner();
+        askRatings();
 
     }
 
-    private void loadBanner(){
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
+    private void askRatings() {
+        ReviewManager manager = ReviewManagerFactory.create(this);
+        Task<ReviewInfo> request = manager.requestReviewFlow();
+        request.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // We can get the ReviewInfo object
+                ReviewInfo reviewInfo = task.getResult();
+                Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
+                flow.addOnCompleteListener(task2 -> {
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                });
+            } else {
+                // There was some problem, continue regardless of the result.
             }
+        });
+    }
+
+    private void loadBanner(){
+        MobileAds.initialize(this, initializationStatus -> {
         });
         AdRequest adRequest = new AdRequest.Builder().build();
         binding.adView.loadAd(adRequest);

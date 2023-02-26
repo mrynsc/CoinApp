@@ -21,12 +21,20 @@
         tools:replace="android:fullBackupContent"
         tools:targetApi="31">
         <activity
+            android:name=".activities.SpinActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".activities.AnnouncementActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-4799864564577169~6360049703" />
@@ -75,8 +83,8 @@
         </activity>
         <activity
             android:name=".activities.StartActivity"
-            android:label="POW Network"
-            android:exported="false">
+            android:exported="false"
+            android:label="POW Network">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
