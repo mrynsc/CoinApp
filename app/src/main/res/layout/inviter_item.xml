@@ -19,7 +19,7 @@
             android:id="@+id/profileImage"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/ic_person_black_24dp"/>
+            />
 
 
         <TextView
@@ -31,7 +31,7 @@
             android:layout_marginTop="@dimen/_2sdp"
             android:maxLines="2"
             android:gravity="center"
-            android:text="user"
+            android:text=""
             android:textColor="@color/black" />
 
 

@@ -33,6 +33,7 @@ import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
+import com.appodeal.ads.RewardedVideoCallbacks;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -131,7 +132,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         initViewModels();
         loadBanner();
-        new Handler().postDelayed(this::loadAds,50);
+
+        loadAds();
 
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
@@ -162,8 +164,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         });
 
         binding.mainProfile.energyCount.setOnClickListener(view -> {
-            if (mInterstitialAd !=null){
-                mInterstitialAd.show(this);
+            if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO) ){
+                Appodeal.show(this,Appodeal.REWARDED_VIDEO);
             }else {
                 StyleableToast.makeText(this,"Please try again!",R.style.customToast).show();
             }
@@ -179,108 +181,157 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
     }
 
-
     private void loadAds(){
-        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.REWARDED_VIDEO);
+        Appodeal.isLoaded(Appodeal.REWARDED_VIDEO);
+        Appodeal.setRewardedVideoCallbacks(new RewardedVideoCallbacks() {
+            @Override
+            public void onRewardedVideoLoaded(boolean b) {
 
+            }
+
+            @Override
+            public void onRewardedVideoFailedToLoad() {
+
+            }
+
+            @Override
+            public void onRewardedVideoShown() {
+                energyStatus = 1;
+            }
+
+            @Override
+            public void onRewardedVideoShowFailed() {
+
+            }
+
+            @Override
+            public void onRewardedVideoFinished(double v, String s) {
+
+            }
+
+            @Override
+            public void onRewardedVideoClosed(boolean b) {
+
+            }
+
+            @Override
+            public void onRewardedVideoExpired() {
+
+            }
+
+            @Override
+            public void onRewardedVideoClicked() {
+
+            }
         });
-        AdRequest adRequest = new AdRequest.Builder().build();
-
-        InterstitialAd.load(StartActivity.this, getString(R.string.intersId), adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        mInterstitialAd = null;
-                        pd.dismiss();
-                    }
-
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        pd.dismiss();
-                        mInterstitialAd = interstitialAd;
-                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            @Override
-                            public void onAdClicked() {
-                                super.onAdClicked();
-                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
-                            }
-
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                super.onAdDismissedFullScreenContent();
-                                energyStatus = 1;
-                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
-
-                            }
-
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-                                super.onAdFailedToShowFullScreenContent(adError);
-                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
-
-                            }
-
-                            @Override
-                            public void onAdImpression() {
-                                super.onAdImpression();
-                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
-
-                            }
-
-                            @Override
-                            public void onAdShowedFullScreenContent() {
-                                super.onAdShowedFullScreenContent();
-                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
-
-                            }
-                        });
-                    }
-
-                });
     }
 
 
-    private void loadBanner(){
-        MobileAds.initialize(StartActivity.this, initializationStatus -> {
-            pd.dismiss();
-        });
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.mainProfile.adView.loadAd(adRequest);
-
-//        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
-//        Appodeal.show(this,Appodeal.BANNER);
-//        Appodeal.isLoaded(Appodeal.BANNER);
-//        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-//            @Override
-//            public void onBannerLoaded(int i, boolean b) {
-//            }
+//    private void loadAds(){
+//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
 //
-//            @Override
-//            public void onBannerFailedToLoad() {
-//
-//            }
-//
-//            @Override
-//            public void onBannerShown() {
-//
-//            }
-//
-//            @Override
-//            public void onBannerShowFailed() {
-//
-//            }
-//
-//            @Override
-//            public void onBannerClicked() {
-//
-//            }
-//
-//            @Override
-//            public void onBannerExpired() {
-//
-//            }
 //        });
+//        AdRequest adRequest = new AdRequest.Builder().build();
 //
+//        InterstitialAd.load(StartActivity.this, getString(R.string.intersId), adRequest,
+//                new InterstitialAdLoadCallback() {
+//                    @Override
+//                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                        mInterstitialAd = null;
+//                        pd.dismiss();
+//                    }
+//
+//                    @Override
+//                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+//                        pd.dismiss();
+//                        mInterstitialAd = interstitialAd;
+//                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+//                            @Override
+//                            public void onAdClicked() {
+//                                super.onAdClicked();
+//                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                            @Override
+//                            public void onAdDismissedFullScreenContent() {
+//                                super.onAdDismissedFullScreenContent();
+//                                energyStatus = 1;
+//                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
+//
+//                            }
+//
+//                            @Override
+//                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+//                                super.onAdFailedToShowFullScreenContent(adError);
+//                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
+//
+//                            }
+//
+//                            @Override
+//                            public void onAdImpression() {
+//                                super.onAdImpression();
+//                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
+//
+//                            }
+//
+//                            @Override
+//                            public void onAdShowedFullScreenContent() {
+//                                super.onAdShowedFullScreenContent();
+//                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
+//
+//                            }
+//                        });
+//                    }
+//
+//                });
+//    }
+
+
+    private void loadBanner(){
+//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+//            pd.dismiss();
+//        });
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        binding.mainProfile.adView.loadAd(adRequest);
+
+        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
+        Appodeal.show(this,Appodeal.BANNER);
+        Appodeal.isLoaded(Appodeal.BANNER);
+        Appodeal.setBannerCallbacks(new BannerCallbacks() {
+            @Override
+            public void onBannerLoaded(int i, boolean b) {
+                pd.dismiss();
+            }
+
+            @Override
+            public void onBannerFailedToLoad() {
+                pd.dismiss();
+
+            }
+
+            @Override
+            public void onBannerShown() {
+
+            }
+
+            @Override
+            public void onBannerShowFailed() {
+                pd.dismiss();
+
+            }
+
+            @Override
+            public void onBannerClicked() {
+
+            }
+
+            @Override
+            public void onBannerExpired() {
+
+            }
+        });
+
 
 
 

@@ -83,8 +83,15 @@
         android:textSize="20sp"
         android:fontFamily="@font/allerta"
         android:text="Spin"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@id/bannerAds"
         android:textColor="@color/white" />
+
+    <com.appodeal.ads.BannerView
+        android:id="@+id/bannerAds"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 
 

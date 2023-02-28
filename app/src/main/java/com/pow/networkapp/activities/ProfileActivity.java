@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.BannerCallbacks;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
@@ -66,17 +68,47 @@ public class ProfileActivity extends AppCompatActivity {
                     // reviewed or not, or even whether the review dialog was shown. Thus, no
                     // matter the result, we continue our app flow.
                 });
-            } else {
-                // There was some problem, continue regardless of the result.
-            }
+            }  // There was some problem, continue regardless of the result.
+
         });
     }
 
     private void loadBanner(){
-        MobileAds.initialize(this, initializationStatus -> {
+
+        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
+        Appodeal.show(this,Appodeal.BANNER);
+        Appodeal.isLoaded(Appodeal.BANNER);
+        Appodeal.setBannerCallbacks(new BannerCallbacks() {
+            @Override
+            public void onBannerLoaded(int i, boolean b) {
+            }
+
+            @Override
+            public void onBannerFailedToLoad() {
+
+            }
+
+            @Override
+            public void onBannerShown() {
+
+            }
+
+            @Override
+            public void onBannerShowFailed() {
+
+            }
+
+            @Override
+            public void onBannerClicked() {
+
+            }
+
+            @Override
+            public void onBannerExpired() {
+
+            }
         });
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+
     }
 
     @Override

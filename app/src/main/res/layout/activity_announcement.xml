@@ -33,6 +33,11 @@
         android:layout_height="wrap_content"
         android:id="@+id/recyclerView"/>
 
-
+    <com.appodeal.ads.BannerView
+        android:id="@+id/bannerAds"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </RelativeLayout>

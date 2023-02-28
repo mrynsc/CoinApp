@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.WindowManager;
 
+import com.appodeal.ads.Appodeal;
 import com.pow.networkapp.R;
 
 public class OpeningActivity extends AppCompatActivity {
@@ -18,6 +19,7 @@ public class OpeningActivity extends AppCompatActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
+        Appodeal.initialize(this, getString(R.string.appodeal_app_id),Appodeal.INTERSTITIAL|Appodeal.REWARDED_VIDEO);
 
         new Handler().postDelayed(() -> {
 

@@ -1,6 +1,5 @@
 package com.pow.networkapp.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
@@ -9,16 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.BannerCallbacks;
 import com.pow.networkapp.R;
 import com.pow.networkapp.adapter.AnonsAdapter;
 import com.pow.networkapp.databinding.ActivityAnnouncementBinding;
@@ -26,7 +20,6 @@ import com.pow.networkapp.model.Anons;
 import com.pow.networkapp.viewmodel.AnonsViewModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class AnnouncementActivity extends AppCompatActivity {
@@ -57,10 +50,48 @@ public class AnnouncementActivity extends AppCompatActivity {
 
         initRecycler();
         getAnnouncements();
+        
+        loadAppodealBanner();
 
     }
 
+    private void loadAppodealBanner() {
+        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
 
+        Appodeal.setBannerViewId(R.id.bannerAds);
+        Appodeal.show(this,Appodeal.BANNER);
+        Appodeal.setBannerCallbacks(new BannerCallbacks() {
+            @Override
+            public void onBannerLoaded(int i, boolean b) {
+                Log.d("==ban","loaded");
+            }
+
+            @Override
+            public void onBannerFailedToLoad() {
+                Log.d("==ban","not loaded");
+            }
+
+            @Override
+            public void onBannerShown() {
+
+            }
+
+            @Override
+            public void onBannerShowFailed() {
+
+            }
+
+            @Override
+            public void onBannerClicked() {
+
+            }
+
+            @Override
+            public void onBannerExpired() {
+
+            }
+        });
+    }
 
 
     private void initRecycler(){
