@@ -1,17 +1,12 @@
 package com.pow.networkapp.repo;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
-
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.pow.networkapp.activities.MainActivity;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
@@ -21,12 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.NavigableMap;
-import java.util.TreeMap;
 
 import okhttp3.Call;
 import okhttp3.Callback;

@@ -11,7 +11,6 @@ public class NotificationsActivity extends AppCompatActivity {
     private ActivityNotificationsBinding binding;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

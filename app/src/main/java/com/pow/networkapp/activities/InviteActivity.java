@@ -16,6 +16,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.appodeal.ads.Appodeal;
+import com.appodeal.ads.BannerCallbacks;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
@@ -164,16 +166,52 @@ public class InviteActivity extends AppCompatActivity {
 
                 });
     }
-
     private void loadBanner(){
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+//            pd.dismiss();
+//        });
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        binding.mainProfile.adView.loadAd(adRequest);
+
+        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
+        Appodeal.show(this,Appodeal.BANNER);
+        Appodeal.isLoaded(Appodeal.BANNER);
+        Appodeal.setBannerCallbacks(new BannerCallbacks() {
             @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            public void onBannerLoaded(int i, boolean b) {
+            }
+
+            @Override
+            public void onBannerFailedToLoad() {
+
+            }
+
+            @Override
+            public void onBannerShown() {
+
+            }
+
+            @Override
+            public void onBannerShowFailed() {
+
+            }
+
+            @Override
+            public void onBannerClicked() {
+
+            }
+
+            @Override
+            public void onBannerExpired() {
+
             }
         });
-        AdRequest adRequest = new AdRequest.Builder().build();
-        binding.adView.loadAd(adRequest);
+
+
+
+
     }
+
 
     private void initRecycler(){
         userArrayList = new ArrayList<>();
