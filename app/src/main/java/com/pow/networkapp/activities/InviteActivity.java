@@ -47,6 +47,7 @@ import com.pow.networkapp.viewmodel.ReferralViewModel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import io.github.muddz.styleabletoast.StyleableToast;
 
@@ -92,6 +93,7 @@ public class InviteActivity extends AppCompatActivity {
         getInviters();
         loadBanner();
         loadAds();
+
 
         binding.copyBtn.setOnClickListener(view -> {
             String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin. Use my referral link. ")
@@ -243,6 +245,7 @@ public class InviteActivity extends AppCompatActivity {
         });
         viewModel.getErrorMessage().observe(this, System.out::println);
     }
+
 
     @Override
     protected void onStart() {

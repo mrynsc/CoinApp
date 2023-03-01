@@ -10,13 +10,10 @@ android {
         applicationId "com.pow.networkapp"
         minSdk 23
         targetSdk 33
-<<<<<<< HEAD
         versionCode 17
         versionName "1.1.5"
-=======
-        versionCode 16
-        versionName "1.1.4"
->>>>>>> origin/master
+        versionCode 17
+        versionName "1.1.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

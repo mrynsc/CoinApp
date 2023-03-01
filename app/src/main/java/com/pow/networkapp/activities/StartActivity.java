@@ -312,7 +312,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
             @Override
             public void onBannerShown() {
-
             }
 
             @Override
