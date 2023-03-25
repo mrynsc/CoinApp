@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">POW</string>
 
-    <string name="client_id">24929797723-1v60ocaddvgo852orqi7c9dl3i9rnaif.apps.googleusercontent.com</string>
-    <string name="client_secret">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</string>
+    <string name="client_id"></string>
+    <string name="client_secret"></string>
 
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
