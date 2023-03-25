@@ -35,4 +35,8 @@ public class StartActivityViewModel extends ViewModel {
         repo.updateBalance(myId);
     }
 
+    public void getMainAnons(ActivityStartBinding binding){
+        repo.getMainAnons(binding);
+    }
+
 }

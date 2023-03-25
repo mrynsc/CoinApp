@@ -48,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         viewModel = new ViewModelProvider(this).get(ProfileActivityViewModel.class);
-        viewModel.getUserInfo(firebaseUser.getUid(),binding);
+        viewModel.getUserInfo(firebaseUser.getUid(),binding,this);
 
         loadBanner();
         askRatings();
@@ -74,40 +74,10 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void loadBanner(){
-
-        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.isLoaded(Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
+        MobileAds.initialize(ProfileActivity.this, initializationStatus -> {
         });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
 
     }
 

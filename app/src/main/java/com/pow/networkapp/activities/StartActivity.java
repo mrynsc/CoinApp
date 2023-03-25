@@ -26,7 +26,8 @@ import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
 
 import android.view.MenuItem;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
@@ -34,15 +35,12 @@ import com.android.installreferrer.api.ReferrerDetails;
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
 import com.appodeal.ads.RewardedVideoCallbacks;
-import com.google.android.gms.ads.AdError;
+
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
-import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
@@ -52,6 +50,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
@@ -82,15 +81,17 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private TimerState timerState;
     private PrefUtils prefUtils;
     private int MAX_TIME = 14500;
-    private int tcrl = 14500;
+    private final int tcrl = 14500;
     private int timeToStart;
     private CountDownTimer timer1;
     private ProgressDialog pd;
     private InstallReferrerClient mReferrerClient;
-    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    private final NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
     private int energyStatus = 0;
-    private InterstitialAd mInterstitialAd;
+
+    private RewardedAd mRewardedAd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,8 +133,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         initViewModels();
         loadBanner();
-
         loadAds();
+        new Handler().postDelayed(()-> pd.dismiss(),3000);
 
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
@@ -164,175 +165,59 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         });
 
         binding.mainProfile.energyCount.setOnClickListener(view -> {
-            if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO) ){
-                Appodeal.show(this,Appodeal.REWARDED_VIDEO);
-            }else {
-                StyleableToast.makeText(this,"Please try again!",R.style.customToast).show();
+            if (mRewardedAd!=null){
+                mRewardedAd.show(this, rewardItem -> {
+                    energyStatus = 1;
+                });
             }
         } );
 
+        View headerView = navigationView.inflateHeaderView(R.layout.nav_header);
+        ImageView telegram = headerView.findViewById(R.id.telegramBtn);
+        ImageView instagram = headerView.findViewById(R.id.instaBtn);
+        ImageView twitter = headerView.findViewById(R.id.twitterBtn);
 
+        telegram.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
+        twitter.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
+        instagram.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
 
-        binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
-        binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
-        binding.mainProfile.instaBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
+//
+//        binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
+//        binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
+//        binding.mainProfile.instaBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
 
 
 
     }
+
 
     private void loadAds(){
-        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.REWARDED_VIDEO);
-        Appodeal.isLoaded(Appodeal.REWARDED_VIDEO);
-        Appodeal.setRewardedVideoCallbacks(new RewardedVideoCallbacks() {
-            @Override
-            public void onRewardedVideoLoaded(boolean b) {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, getString(R.string.rewardedId),
+                adRequest, new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        super.onAdFailedToLoad(loadAdError);
+                        System.out.println(loadAdError.getMessage() +  " hata");
+                    }
 
-            }
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+                        super.onAdLoaded(rewardedAd);
+                        mRewardedAd = rewardedAd;
 
-            @Override
-            public void onRewardedVideoFailedToLoad() {
+                    }
 
-            }
+                });
 
-            @Override
-            public void onRewardedVideoShown() {
-                energyStatus = 1;
-            }
-
-            @Override
-            public void onRewardedVideoShowFailed() {
-
-            }
-
-            @Override
-            public void onRewardedVideoFinished(double v, String s) {
-
-            }
-
-            @Override
-            public void onRewardedVideoClosed(boolean b) {
-
-            }
-
-            @Override
-            public void onRewardedVideoExpired() {
-
-            }
-
-            @Override
-            public void onRewardedVideoClicked() {
-
-            }
-        });
     }
 
-
-//    private void loadAds(){
-//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
-//
-//        });
-//        AdRequest adRequest = new AdRequest.Builder().build();
-//
-//        InterstitialAd.load(StartActivity.this, getString(R.string.intersId), adRequest,
-//                new InterstitialAdLoadCallback() {
-//                    @Override
-//                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-//                        mInterstitialAd = null;
-//                        pd.dismiss();
-//                    }
-//
-//                    @Override
-//                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-//                        pd.dismiss();
-//                        mInterstitialAd = interstitialAd;
-//                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-//                            @Override
-//                            public void onAdClicked() {
-//                                super.onAdClicked();
-//                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
-//                            }
-//
-//                            @Override
-//                            public void onAdDismissedFullScreenContent() {
-//                                super.onAdDismissedFullScreenContent();
-//                                energyStatus = 1;
-//                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
-//
-//                            }
-//
-//                            @Override
-//                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
-//                                super.onAdFailedToShowFullScreenContent(adError);
-//                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
-//
-//                            }
-//
-//                            @Override
-//                            public void onAdImpression() {
-//                                super.onAdImpression();
-//                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
-//
-//                            }
-//
-//                            @Override
-//                            public void onAdShowedFullScreenContent() {
-//                                super.onAdShowedFullScreenContent();
-//                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
-//
-//                            }
-//                        });
-//                    }
-//
-//                });
-//    }
-
-
     private void loadBanner(){
-//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
-//            pd.dismiss();
-//        });
-//        AdRequest adRequest = new AdRequest.Builder().build();
-//        binding.mainProfile.adView.loadAd(adRequest);
-
-        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.isLoaded(Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-                pd.dismiss();
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-                pd.dismiss();
-
-            }
-
-            @Override
-            public void onBannerShown() {
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-                pd.dismiss();
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
+        MobileAds.initialize(StartActivity.this, initializationStatus -> {
+            pd.dismiss();
         });
-
-
-
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.mainProfile.adView.loadAd(adRequest);
 
     }
 
@@ -343,10 +228,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navInvite:
+
                 startActivity(new Intent(this,InviteActivity.class));
 
                 break;
             case R.id.navWallet:
+
                 startActivity(new Intent(this,WalletActivity.class));
 
                 break;
@@ -378,6 +265,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         viewModel.getUserInfo(this,firebaseUser.getUid(),binding);
         viewModel.getTotalUsers(binding);
         viewModel.updateLastSeen(firebaseUser.getUid());
+        viewModel.getMainAnons(binding);
     }
 
 
@@ -393,9 +281,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         if (timerState == TimerState.RUNNING) {
 
-            int hou = (int) timeToStart / (60 * 60) % 24;
-            int min = (int) timeToStart / 60 % 60;
-            int sec = (int) timeToStart % 60;
+            int hou = timeToStart / (60 * 60) % 24;
+            int min = timeToStart / 60 % 60;
+            int sec = timeToStart % 60;
             String timeString = String.format(Locale.US, "%02d  :  %02d : %02d", hou, min, sec);
             SpannableString ss = new SpannableString(timeString);
             ss.setSpan(new RelativeSizeSpan(0.2f), 2, 3, 0);
@@ -629,7 +517,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             case InstallReferrerClient.InstallReferrerResponse.SERVICE_UNAVAILABLE:
                 break;
             default:
-                ;
         }
     }
 

@@ -1,5 +1,8 @@
 package com.pow.networkapp.repo;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DataSnapshot;
@@ -16,14 +19,17 @@ import java.util.Date;
 
 public class ProfileActivityRepo {
 
+    private FirebaseDatabase firebaseDatabase;
+
     public ProfileActivityRepo(){
+        firebaseDatabase = FirebaseDatabase.getInstance();
     }
 
 
 
-    public void getUserInfo(String userId, ActivityProfileBinding binding){
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
-                .addValueEventListener(new ValueEventListener() {
+    public void getUserInfo(String userId, ActivityProfileBinding binding, Activity activity){
+        firebaseDatabase.getReference().child("Users").child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){
@@ -31,10 +37,21 @@ public class ProfileActivityRepo {
 
 
                             if (user != null) {
-                                Picasso.get().load(user.getImage()).into(binding.profileImage);
-                                binding.username.setText(user.getUsername());
+//                                Picasso.get().load(user.getImage()).into(binding.profileImage);
+//                                binding.username.setText(user.getUsername());
+//                                binding.profileEmail.setText(user.getEmail());
                                 binding.acCreated.setText(convertTime(user.getRegisterDate()));
-                                binding.profileEmail.setText(user.getEmail());
+
+
+                                SharedPreferences preferences=activity.getSharedPreferences("PREFS",0);
+                                String username=preferences.getString("username","");
+                                String image=preferences.getString("image","");
+                                String email=preferences.getString("email","");
+
+                                Picasso.get().load(image).into(binding.profileImage);
+                                binding.username.setText(username);
+                                binding.profileEmail.setText(email);
+
                             }
 
                         }

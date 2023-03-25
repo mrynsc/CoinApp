@@ -7,6 +7,8 @@ import android.util.Log;
 
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityNotificationsBinding;
 
@@ -25,45 +27,8 @@ public class NotificationsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
-        loadAppodealBanner();
 
     }
 
-    private void loadAppodealBanner() {
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
 
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-                Log.d("==ban","loaded");
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-                Log.d("==ban","not loaded");
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
-        });
-    }
 }

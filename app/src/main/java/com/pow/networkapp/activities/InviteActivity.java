@@ -81,7 +81,6 @@ public class InviteActivity extends AppCompatActivity {
 
         pd = new ProgressDialog(this,R.style.CustomDialog);
         pd.setCancelable(false);
-        pd.show();
 
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -90,9 +89,9 @@ public class InviteActivity extends AppCompatActivity {
 
 
         initRecycler();
-        getInviters();
         loadBanner();
         loadAds();
+        getInviters();
 
 
         binding.copyBtn.setOnClickListener(view -> {
@@ -168,49 +167,13 @@ public class InviteActivity extends AppCompatActivity {
 
                 });
     }
+
     private void loadBanner(){
-//        MobileAds.initialize(StartActivity.this, initializationStatus -> {
-//            pd.dismiss();
-//        });
-//        AdRequest adRequest = new AdRequest.Builder().build();
-//        binding.mainProfile.adView.loadAd(adRequest);
-
-        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.isLoaded(Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
+        MobileAds.initialize(InviteActivity.this, initializationStatus -> {
+            pd.dismiss();
         });
-
-
-
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
 
     }
 
@@ -225,25 +188,41 @@ public class InviteActivity extends AppCompatActivity {
 
     @SuppressLint("NotifyDataSetChanged")
     private void getInviters(){
-        userArrayList.clear();
-        viewModel.getInviters(firebaseUser.getUid());
-        viewModel.getUsers().observe(this, posts -> {
-            userArrayList.addAll(posts);
-            pd.dismiss();
-            referralAdapter.notifyDataSetChanged();
-            if (userArrayList.size()==0){
-                pd.dismiss();
-                binding.nothingLay.setVisibility(View.VISIBLE);
-                binding.headerText.setVisibility(View.GONE);
-            }else{
-                binding.nothingLay.setVisibility(View.GONE);
-                binding.headerText.setVisibility(View.VISIBLE);
-                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
+        FirebaseDatabase.getInstance().getReference().child("Referrals").child(firebaseUser.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            long counter = snapshot.getChildrenCount();
+                            binding.headerText.setText(new StringBuilder().append("My Referrals (").append(counter).append(")").toString());
+                        }
+                    }
 
-            }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
-        });
-        viewModel.getErrorMessage().observe(this, System.out::println);
+
+                    }
+                });
+//        userArrayList.clear();
+//        viewModel.getInviters(firebaseUser.getUid());
+//        viewModel.getUsers().observe(this, posts -> {
+//            userArrayList.addAll(posts);
+//            pd.dismiss();
+//            referralAdapter.notifyDataSetChanged();
+//            if (userArrayList.size()==0){
+//                pd.dismiss();
+//                binding.nothingLay.setVisibility(View.VISIBLE);
+//                binding.headerText.setVisibility(View.GONE);
+//            }else{
+//                binding.nothingLay.setVisibility(View.GONE);
+//                binding.headerText.setVisibility(View.VISIBLE);
+//                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
+//
+//            }
+//
+//        });
+//        viewModel.getErrorMessage().observe(this, System.out::println);
     }
 
 

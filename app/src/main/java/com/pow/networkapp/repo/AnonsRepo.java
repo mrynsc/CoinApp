@@ -23,17 +23,19 @@ public class AnonsRepo {
     private MutableLiveData<String> errorMessage;
     private MutableLiveData<List<Anons>> mutableLiveData;
     private List<Anons> anonsList;
+    private FirebaseDatabase firebaseDatabase;
 
 
     public AnonsRepo(){
         errorMessage = new MutableLiveData<>();
         mutableLiveData = new MutableLiveData<>();
         anonsList = new ArrayList<>();
+        firebaseDatabase = FirebaseDatabase.getInstance();
 
     }
 
     public void getAnnouncements(){
-        FirebaseDatabase.getInstance().getReference().child("Announcements").addListenerForSingleValueEvent(new ValueEventListener() {
+        firebaseDatabase.getReference().child("Announcements").addListenerForSingleValueEvent(new ValueEventListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

@@ -119,40 +119,13 @@ public class WalletActivity extends AppCompatActivity {
     }
 
 
+
     private void loadBanner(){
-        Appodeal.initialize(this,getString(R.string.appodeal_app_id),Appodeal.BANNER);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.isLoaded(Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
+        MobileAds.initialize(WalletActivity.this, initializationStatus -> {
         });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
+
     }
 
     private void lostBalance(int lostValue){
@@ -182,7 +155,7 @@ public class WalletActivity extends AppCompatActivity {
 
     private void getBalanceInfo(){
         FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
-                .addValueEventListener(new ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){

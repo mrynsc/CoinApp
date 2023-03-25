@@ -303,66 +303,55 @@
     </LinearLayout>
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
         android:layout_below="@id/totalUsersLay"
-        android:layout_margin="@dimen/_5sdp"
-        android:id="@+id/infotext"
-        android:textColor="@color/black"
-        android:fontFamily="@font/allerta"
-        android:text="@string/announcement_you_get_30_pow_when_you_press_start_once_every_4_hours_you_earn_50_pow_by_inviting_your_friends"/>
+        android:id="@+id/anonsNested"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/buttonsLay"
-        android:layout_below="@id/infotext"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_margin="@dimen/_4sdp"
-            android:src="@drawable/telegram_svgrepo_com"
-            android:id="@+id/telegramBtn"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:id="@+id/instaBtn"
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:layout_margin="@dimen/_4sdp"
-            android:src="@drawable/instagram_1_svgrepo_com"
-            android:layout_weight="1"
-
-            />
-        <ImageView
-            android:layout_width="@dimen/_40sdp"
-            android:layout_height="@dimen/_40sdp"
-            android:id="@+id/twitterBtn"
-            android:src="@drawable/twitter_color_svgrepo_com"
-            android:layout_margin="@dimen/_4sdp"
-            android:layout_weight="1" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/infotext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_5sdp"
+                android:fontFamily="@font/allerta"
+                android:textColor="@color/black" />
 
 
-<!--    <com.google.android.gms.ads.AdView-->
-<!--        android:id="@+id/adView"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        app:adSize="SMART_BANNER"-->
-<!--        app:adUnitId="@string/bannerId" />-->
+            <com.google.android.gms.ads.AdView
+                android:id="@+id/adView"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:layout_below="@id/infotext"
+                android:layout_width="match_parent"
+                app:adSize="SMART_BANNER"
+                app:adUnitId="@string/bannerId"
+                android:layout_height="wrap_content"
+                />
+
+        </RelativeLayout>
 
 
-    <com.appodeal.ads.BannerView
-        android:id="@+id/appodealBannerView"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-         />
+
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+
+
+
+
+
 
 </RelativeLayout>

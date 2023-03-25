@@ -15,6 +15,8 @@ import android.view.View;
 
 import com.appodeal.ads.Appodeal;
 import com.appodeal.ads.BannerCallbacks;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.pow.networkapp.R;
@@ -56,46 +58,16 @@ public class TransactionsActivity extends AppCompatActivity {
 
         initRecycler();
         getTransactions();
-        loadAppodealBanner();
+        loadBanner();
 
     }
 
-    private void loadAppodealBanner() {
-        Appodeal.initialize(this, getResources().getString(R.string.appodeal_app_id), Appodeal.BANNER);
-
-        Appodeal.setBannerViewId(R.id.bannerAds);
-        Appodeal.show(this,Appodeal.BANNER);
-        Appodeal.setBannerCallbacks(new BannerCallbacks() {
-            @Override
-            public void onBannerLoaded(int i, boolean b) {
-                Log.d("==ban","loaded");
-            }
-
-            @Override
-            public void onBannerFailedToLoad() {
-                Log.d("==ban","not loaded");
-            }
-
-            @Override
-            public void onBannerShown() {
-
-            }
-
-            @Override
-            public void onBannerShowFailed() {
-
-            }
-
-            @Override
-            public void onBannerClicked() {
-
-            }
-
-            @Override
-            public void onBannerExpired() {
-
-            }
+    private void loadBanner(){
+        MobileAds.initialize(TransactionsActivity.this, initializationStatus -> {
         });
+        AdRequest adRequest = new AdRequest.Builder().build();
+        binding.adView.loadAd(adRequest);
+
     }
 
     private void initRecycler(){

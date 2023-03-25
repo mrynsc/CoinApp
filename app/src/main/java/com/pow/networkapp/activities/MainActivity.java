@@ -7,6 +7,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -26,17 +27,26 @@ import androidx.annotation.Nullable;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.onesignal.OneSignal;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityMainBinding;
+import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity  {
@@ -47,6 +57,7 @@ public class MainActivity extends AppCompatActivity  {
     private ProgressDialog pd;
     private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +66,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(binding.getRoot());
 
         firebaseAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         if (firebaseAuth.getCurrentUser()!=null){
             Intent intent = new Intent(this,StartActivity.class);
@@ -128,7 +140,9 @@ public class MainActivity extends AppCompatActivity  {
                                         pd.dismiss();
                                         FirebaseUser firebaseUser =firebaseAuth.getCurrentUser();
 
-                                        addToDatabase(firebaseUser);
+                                        if (firebaseUser != null) {
+                                            addToDatabase(firebaseUser);
+                                        }
 
 
                                     }
@@ -179,20 +193,24 @@ public class MainActivity extends AppCompatActivity  {
                     map.put("referralStatus",0);
                     map.put("referralLink", UUID.randomUUID().toString().substring(0,8));
 
-                    databaseReference.setValue(map).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            Intent intent = new Intent(MainActivity.this, StartActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    databaseReference.setValue(map).addOnSuccessListener(unused -> {
+                        SharedPreferences sharedPreferences = getSharedPreferences("PREFS",0);
+                        SharedPreferences.Editor editor=sharedPreferences.edit();
+                        editor.putString("username",firebaseUser.getDisplayName());
+                        editor.putString("email",firebaseUser.getEmail());
+                        editor.putString("image",firebaseUser.getPhotoUrl().toString());
+                        editor.apply();
+                        Intent intent = new Intent(MainActivity.this, StartActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }).addOnFailureListener(e -> Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show());
                 }else {
+                    SharedPreferences sharedPreferences = getSharedPreferences("PREFS",0);
+                    SharedPreferences.Editor editor=sharedPreferences.edit();
+                    editor.putString("username",firebaseUser.getDisplayName());
+                    editor.putString("email",firebaseUser.getEmail());
+                    editor.putString("image",firebaseUser.getPhotoUrl().toString());
+                    editor.apply();
                     Intent intent = new Intent(MainActivity.this, StartActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -205,12 +223,7 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
 
-
-
-
-
     }
-
 
     @Override
     protected void onStart() {

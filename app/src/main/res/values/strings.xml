@@ -17,7 +17,7 @@
     <string name="support">KYC</string>
     <string name="sign_out">Sign Out</string>
     <string name="invite_your_friends">Invite Your Friends</string>
-    <string name="invite_your_friend_and_earn_50_coin">Invite your friend and earn 50 POW.</string>
+    <string name="invite_your_friend_and_earn_50_coin">Invite your friend and earn POW.</string>
     <string name="invite">INVITE</string>
     <string name="my_referral">MY REFERRALS</string>
     <string name="oops">Oops!</string>
@@ -37,6 +37,7 @@
 
     <string name="bannerId">ca-app-pub-4799864564577169/8830865024</string>
     <string name="intersId">ca-app-pub-4799864564577169/8639293332</string>
+    <string name="rewardedId">ca-app-pub-4799864564577169/1882313292</string>
 
     <!--    ca-app-pub-3940256099942544/6300978111-->
     <!--    ca-app-pub-3940256099942544/1033173712-->
