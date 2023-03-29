@@ -204,25 +204,25 @@ public class InviteActivity extends AppCompatActivity {
 
                     }
                 });
-//        userArrayList.clear();
-//        viewModel.getInviters(firebaseUser.getUid());
-//        viewModel.getUsers().observe(this, posts -> {
-//            userArrayList.addAll(posts);
-//            pd.dismiss();
-//            referralAdapter.notifyDataSetChanged();
-//            if (userArrayList.size()==0){
-//                pd.dismiss();
-//                binding.nothingLay.setVisibility(View.VISIBLE);
-//                binding.headerText.setVisibility(View.GONE);
-//            }else{
-//                binding.nothingLay.setVisibility(View.GONE);
-//                binding.headerText.setVisibility(View.VISIBLE);
-//                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
-//
-//            }
-//
-//        });
-//        viewModel.getErrorMessage().observe(this, System.out::println);
+        userArrayList.clear();
+        viewModel.getInviters(firebaseUser.getUid());
+        viewModel.getUsers().observe(this, posts -> {
+            userArrayList.addAll(posts);
+            pd.dismiss();
+            referralAdapter.notifyDataSetChanged();
+            if (userArrayList.size()==0){
+                pd.dismiss();
+                binding.nothingLay.setVisibility(View.VISIBLE);
+                binding.headerText.setVisibility(View.GONE);
+            }else{
+                binding.nothingLay.setVisibility(View.GONE);
+                binding.headerText.setVisibility(View.VISIBLE);
+                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
+
+            }
+
+        });
+        viewModel.getErrorMessage().observe(this, System.out::println);
     }
 
 

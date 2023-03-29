@@ -20,6 +20,7 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,10 +28,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityWalletBinding;
 import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -154,36 +158,32 @@ public class WalletActivity extends AppCompatActivity {
 
 
     private void getBalanceInfo(){
-        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            User user = snapshot.getValue(User.class);
-                            binding.claimedBalance.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
-                            binding.referralBalance.setText(new StringBuilder().append("").append(user.getReferral()).toString());
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            User user = documentSnapshot.toObject(User.class);
+                            if (user!=null){
+                                binding.claimedBalance.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
+                                binding.referralBalance.setText(new StringBuilder().append("").append(user.getReferral()).toString());
 
-                            binding.totalBalance.setText(new StringBuilder().append(user.getBalance()).toString());
+                                binding.totalBalance.setText(new StringBuilder().append(user.getBalance()).toString());
 
-                            binding.currentBalance.setText(new StringBuilder().append(user.getBalance()).toString());
-
-
-                            int a = (int) (user.getBalance() * 100 / minWithdrawal);
-                            binding.earningProgress.setProgress((Math.min(a, 100)));
-
-                            binding.earningPercent.setText(new StringBuilder().append(Math.min(a, 100)).append("%").toString());
+                                binding.currentBalance.setText(new StringBuilder().append(user.getBalance()).toString());
 
 
+                                int a = (int) (user.getBalance() * 100 / minWithdrawal);
+                                binding.earningProgress.setProgress((Math.min(a, 100)));
 
-
+                                binding.earningPercent.setText(new StringBuilder().append(Math.min(a, 100)).append("%").toString());
+                            }
                         }
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
                 });
+
+
+
     }
 
 

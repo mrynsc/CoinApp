@@ -5,10 +5,13 @@ import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.pow.networkapp.databinding.ActivityProfileBinding;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.User;
@@ -28,40 +31,25 @@ public class ProfileActivityRepo {
 
 
     public void getUserInfo(String userId, ActivityProfileBinding binding, Activity activity){
-        firebaseDatabase.getReference().child("Users").child(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+
+        FirebaseFirestore.getInstance().collection("Users").document(userId)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            User user = snapshot.getValue(User.class);
-
-
-                            if (user != null) {
-//                                Picasso.get().load(user.getImage()).into(binding.profileImage);
-//                                binding.username.setText(user.getUsername());
-//                                binding.profileEmail.setText(user.getEmail());
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            User user = documentSnapshot.toObject(User.class);
+                            if (user!=null){
+                                System.out.println("bilgi "  + user.getUsername());
                                 binding.acCreated.setText(convertTime(user.getRegisterDate()));
-
-
-                                SharedPreferences preferences=activity.getSharedPreferences("PREFS",0);
-                                String username=preferences.getString("username","");
-                                String image=preferences.getString("image","");
-                                String email=preferences.getString("email","");
-
-                                Picasso.get().load(image).into(binding.profileImage);
-                                binding.username.setText(username);
-                                binding.profileEmail.setText(email);
-
+                                Picasso.get().load(user.getImage()).into(binding.profileImage);
+                                binding.username.setText(user.getUsername());
+                                binding.profileEmail.setText(user.getEmail());
                             }
-
                         }
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
                 });
+
+
     }
 
     private String convertTime(long time){

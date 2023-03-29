@@ -45,62 +45,52 @@ public class StartActivityRepo {
 
 
     public void getUserInfo(Activity activity,String userId, ActivityStartBinding binding){
-        firebaseDatabase.getReference().child("Users").child(userId)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseFirestore.getInstance().collection("Users").document(userId)
+                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            User user = snapshot.getValue(User.class);
-
-
-                            if (user != null) {
-
-
-//                                Picasso.get().load(user.getImage()).into(binding.userImage);
-//                                binding.mainProfile.username.setText(user.getUsername());
-//
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            User user = documentSnapshot.toObject(User.class);
+                            if (user!=null){
+                                System.out.println("bilgi "  + user.getUsername());
                                 binding.mainProfile.coinText.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
                                 binding.mainProfile.referral.setText(new StringBuilder().append("").append(user.getReferral()).toString());
-
-                                SharedPreferences preferences=activity.getSharedPreferences("PREFS",0);
-                                String username=preferences.getString("username","");
-                                String image=preferences.getString("image","");
-                                Picasso.get().load(image).into(binding.userImage);
-                                binding.mainProfile.username.setText(username);
-
-
-
-                            }else {
-                                activity.finish();
+                                Picasso.get().load(user.getImage()).into(binding.userImage);
+                                binding.mainProfile.username.setText(user.getUsername());
                             }
-
-                        }else {
-                            activity.finish();
                         }
                     }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
                 });
+
+
     }
 
 
 
     public void getTotalUsers(ActivityStartBinding binding){
-        firebaseDatabase.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+//        firebaseDatabase.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//                    long users = snapshot.getChildrenCount();
+//                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+        FirebaseFirestore.getInstance().collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    long users = snapshot.getChildrenCount();
-                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    int count = task.getResult().size();
+                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(count).toString());
+                } else {
+
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
     }
@@ -157,47 +147,43 @@ public class StartActivityRepo {
 
 
     public void updateBalance(String myId){
-        firebaseDatabase.getReference().child("Users").child(myId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
+        FirebaseFirestore.getInstance().collection("Users").document(myId)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            User user = documentSnapshot.toObject(User.class);
+                            if (user!=null){
 
-                    if (user != null) {
-                        HashMap<String,Object> map = new HashMap<>();
-                        firebaseDatabase.getReference().child("Points").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()){
-                                    Point point = snapshot.getValue(Point.class);
-                                    if (point!=null){
-                                        map.put("claimed",user.getClaimed() + point.getCounterPoint());
-                                        map.put("balance",user.getBalance() + point.getCounterPoint());
-                                        firebaseDatabase.getReference().child("Users").child(myId)
-                                                .updateChildren(map);
-                                    }
-                                }
+                                HashMap<String,Object> map = new HashMap<>();
+                                FirebaseFirestore.getInstance().collection("Points").document("Points")
+                                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                if (documentSnapshot.exists()){
+                                                    Point point = documentSnapshot.toObject(Point.class);
+                                                    if (point!=null){
+                                                        map.put("claimed",user.getClaimed() + point.getCounterPoint());
+                                                        map.put("balance",user.getBalance() + point.getCounterPoint());
+
+                                                        FirebaseFirestore.getInstance().collection("Users").document(myId)
+                                                                .update(map);
+                                                    }
+                                                }
+                                            }
+                                        });
+
+
+
+
+
+
                             }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-
+                        }
                     }
+                });
 
 
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
 
@@ -220,9 +206,8 @@ public class StartActivityRepo {
         HashMap<String,Object> map = new HashMap<>();
         map.put("lastSeen",System.currentTimeMillis());
 
-        firebaseDatabase.getReference().child("Users").child(myId).updateChildren(map).addOnSuccessListener(unused -> {
-        }).addOnFailureListener(e -> {
-        });
+        FirebaseFirestore.getInstance().collection("Users").document(myId)
+                .update(map);
     }
 
 }

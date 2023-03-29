@@ -43,6 +43,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd;
 
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -51,6 +52,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
@@ -131,10 +134,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
 
-        initViewModels();
-        loadBanner();
-        loadAds();
-        new Handler().postDelayed(()-> pd.dismiss(),3000);
+
 
         binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
@@ -169,24 +169,19 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 mRewardedAd.show(this, rewardItem -> {
                     energyStatus = 1;
                 });
+            }else{
+                StyleableToast.makeText(this,"Please Click Again!",R.style.customToast).show();
             }
         } );
 
-        View headerView = navigationView.inflateHeaderView(R.layout.nav_header);
-        ImageView telegram = headerView.findViewById(R.id.telegramBtn);
-        ImageView instagram = headerView.findViewById(R.id.instaBtn);
-        ImageView twitter = headerView.findViewById(R.id.twitterBtn);
+        binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
+        binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
+        binding.mainProfile.instaBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
 
-        telegram.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
-        twitter.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
-        instagram.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
-
-//
-//        binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
-//        binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
-//        binding.mainProfile.instaBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
-
-
+        initViewModels();
+        loadBanner();
+        loadAds();
+        new Handler().postDelayed(()->pd.dismiss(),5000);
 
     }
 
@@ -198,7 +193,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
-                        System.out.println(loadAdError.getMessage() +  " hata");
                     }
 
                     @Override
@@ -214,7 +208,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
     private void loadBanner(){
         MobileAds.initialize(StartActivity.this, initializationStatus -> {
-            pd.dismiss();
+
         });
         AdRequest adRequest = new AdRequest.Builder().build();
         binding.mainProfile.adView.loadAd(adRequest);
@@ -419,44 +413,39 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     }
 
     private void sendPointToInviter(String userId){
-        FirebaseDatabase.getInstance().getReference().child("Users").child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseFirestore.getInstance().collection("Users").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()){
+                    User user = documentSnapshot.toObject(User.class);
                     HashMap<String,Object> map = new HashMap<>();
                     if (user!=null){
-                        FirebaseDatabase.getInstance().getReference().child("Points").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()){
-                                    Point point = snapshot.getValue(Point.class);
-                                    if (point!=null){
-                                        map.put("balance", user.getBalance() + point.getInvitePoint());
-                                        map.put("referral",user.getReferral() + point.getInvitePoint());
-                                        FirebaseDatabase.getInstance().getReference().child("Users").child(userId)
-                                                .updateChildren(map);
-
+                        FirebaseFirestore.getInstance().collection("Points").document("Points")
+                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()){
+                                            Point point = documentSnapshot.toObject(Point.class);
+                                            if (point!=null){
+                                                map.put("balance", user.getBalance() + point.getInvitePoint());
+                                                map.put("referral",user.getReferral() + point.getInvitePoint());
+                                                FirebaseFirestore.getInstance().collection("Users").document(userId)
+                                                        .update(map);
+                                            }
+                                        }
                                     }
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
+                                });
                     }
-
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
         });
+
+
+
+
+
+
+
     }
 
 
@@ -465,6 +454,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         hashMap.put("inviterId",userId);
         hashMap.put("receiverId",firebaseUser.getUid());
 
+
         FirebaseDatabase.getInstance()
                 .getReference().child("Referrals").child(userId).child(firebaseUser.getUid())
                 .updateChildren(hashMap)
@@ -472,6 +462,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
                 }).addOnFailureListener(e -> {
                 });
+
+
+
     }
     @Override
     public void onInstallReferrerSetupFinished(int responseCode) {
@@ -481,30 +474,32 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     ReferrerDetails response = mReferrerClient.getInstallReferrer();
                     String referrer = response.getInstallReferrer();
 
-                    FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists()){
-                                User user = snapshot.getValue(User.class);
-                                if (user != null && user.getReferralStatus() == 0) {
-                                    if (referrer.length()==28){
-                                        sendPointToInviter(referrer);
-                                        saveUserToMyReferrals(referrer);
-                                        HashMap<String, Object> hashMap = new HashMap<>();
-                                        hashMap.put("referralStatus", 1);
-                                        FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
-                                                .updateChildren(hashMap);
+
+                    FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
+                                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()){
+                                        User user = documentSnapshot.toObject(User.class);
+                                        if (user!=null && user.getReferralStatus()==0){
+                                            if (referrer.length()==28){
+                                                sendPointToInviter(referrer);
+                                                saveUserToMyReferrals(referrer);
+                                                HashMap<String, Object> hashMap = new HashMap<>();
+                                                hashMap.put("referralStatus", 1);
+                                                FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
+                                                        .update(hashMap);
+                                            }
+                                        }
                                     }
-
                                 }
-                            }
-                        }
+                            });
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-                    });
+
+
+
+
 
                     System.out.println("davet " + referrer);
                     mReferrerClient.endConnection();

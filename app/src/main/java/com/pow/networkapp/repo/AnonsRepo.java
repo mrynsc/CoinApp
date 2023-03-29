@@ -7,10 +7,17 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.pow.networkapp.model.Anons;
 import com.pow.networkapp.model.Referral;
 
@@ -23,42 +30,36 @@ public class AnonsRepo {
     private MutableLiveData<String> errorMessage;
     private MutableLiveData<List<Anons>> mutableLiveData;
     private List<Anons> anonsList;
-    private FirebaseDatabase firebaseDatabase;
 
 
     public AnonsRepo(){
         errorMessage = new MutableLiveData<>();
         mutableLiveData = new MutableLiveData<>();
         anonsList = new ArrayList<>();
-        firebaseDatabase = FirebaseDatabase.getInstance();
 
     }
 
     public void getAnnouncements(){
-        firebaseDatabase.getReference().child("Announcements").addListenerForSingleValueEvent(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot ds : snapshot.getChildren()){
-                    if (snapshot.exists()){
-                        Anons anons = ds.getValue(Anons.class);
-
-                        if (anons!=null && anons.getStatus()==0){
-                            anonsList.add(anons);
+        FirebaseFirestore.getInstance().collection("Announcements").get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!queryDocumentSnapshots.isEmpty()) {
+                            List<DocumentSnapshot> list = queryDocumentSnapshots.getDocuments();
+                            for (DocumentSnapshot d : list) {
+                                Anons anons = d.toObject(Anons.class);
+                                anonsList.add(anons);
+                            }
+                            mutableLiveData.postValue(anonsList);
+                        } else {
+                            // if the snapshot is empty we are displaying a toast message.
                         }
                     }
-                }
-                mutableLiveData.postValue(anonsList);
-                Collections.reverse(anonsList);
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                    }
+                });
     }
 
 
