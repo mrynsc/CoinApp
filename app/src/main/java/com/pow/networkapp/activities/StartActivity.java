@@ -1,13 +1,5 @@
 package com.pow.networkapp.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -24,44 +16,36 @@ import android.os.Handler;
 import android.os.RemoteException;
 import android.text.SpannableString;
 import android.text.style.RelativeSizeSpan;
-
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.android.installreferrer.api.InstallReferrerClient;
 import com.android.installreferrer.api.InstallReferrerStateListener;
 import com.android.installreferrer.api.ReferrerDetails;
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
-import com.appodeal.ads.RewardedVideoCallbacks;
-
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.interstitial.InterstitialAd;
-
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.util.PrefUtils;
-import com.pow.networkapp.R;
-import com.pow.networkapp.viewmodel.StartActivityViewModel;
 import com.pow.networkapp.util.TimeReceiver;
+import com.pow.networkapp.viewmodel.StartActivityViewModel;
 
 import org.aviran.cookiebar2.CookieBar;
 
@@ -69,8 +53,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Random;
-
-import io.github.muddz.styleabletoast.StyleableToast;
 
 
 public class StartActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, InstallReferrerStateListener {
@@ -91,9 +73,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     private InstallReferrerClient mReferrerClient;
     private final NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
-    private int energyStatus = 0;
 
-    private RewardedAd mRewardedAd;
+    private NavigationView navigationView;
+    private FirebaseFirestore firestore;
 
 
     @Override
@@ -102,8 +84,12 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         binding = ActivityStartBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .build();
+        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
 
-        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd = new ProgressDialog(this, R.style.CustomDialog);
         pd.setCancelable(false);
         pd.show();
 
@@ -112,6 +98,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         prefUtils = new PrefUtils(getApplicationContext());
+        firestore = FirebaseFirestore.getInstance();
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -119,7 +106,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
         drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
 
@@ -133,14 +120,11 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         viewModel = new ViewModelProvider(this).get(StartActivityViewModel.class);
 
 
-
-
-
-        binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
+        //binding.userImage.setOnClickListener(view -> startActivity(new Intent(this,ProfileActivity.class)));
 
 
         binding.mainProfile.startBtn.setOnClickListener(view -> {
-            if (timerState == TimerState.STOPPED && energyStatus == 1) {
+            if (timerState == TimerState.STOPPED) {
                 prefUtils.setStartedTime((int) viewModel.getNow(this));
                 Random r = new Random();
                 MAX_TIME = r.nextInt(tcrl - (tcrl - 30)) + (tcrl - 30);
@@ -153,8 +137,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 timerState = TimerState.RUNNING;
 
 
-
-            }else {
+            } else {
                 CookieBar.build(this)
                         .setTitle("Please Get Energy First!")
                         .setMessage("Click on Get Energy.")
@@ -164,49 +147,40 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        binding.mainProfile.energyCount.setOnClickListener(view -> {
-            if (mRewardedAd!=null){
-                mRewardedAd.show(this, rewardItem -> {
-                    energyStatus = 1;
-                });
-            }else{
-                StyleableToast.makeText(this,"Please Click Again!",R.style.customToast).show();
-            }
-        } );
 
         binding.mainProfile.telegramBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/PowNetwork"))));
         binding.mainProfile.twitterBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://mobile.twitter.com/Pow__Network"))));
         binding.mainProfile.instaBtn.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.instagram.com/pow__network"))));
 
+
         initViewModels();
         loadBanner();
-        loadAds();
-        new Handler().postDelayed(()->pd.dismiss(),5000);
+        new Handler().postDelayed(() -> pd.dismiss(), 5000);
 
     }
 
 
-    private void loadAds(){
-        AdRequest adRequest = new AdRequest.Builder().build();
-        RewardedAd.load(this, getString(R.string.rewardedId),
-                adRequest, new RewardedAdLoadCallback() {
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        super.onAdFailedToLoad(loadAdError);
-                    }
+//    private void loadAds(){
+//        AdRequest adRequest = new AdRequest.Builder().build();
+//        RewardedAd.load(this, getString(R.string.rewardedId),
+//                adRequest, new RewardedAdLoadCallback() {
+//                    @Override
+//                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+//                        super.onAdFailedToLoad(loadAdError);
+//                    }
+//
+//                    @Override
+//                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+//                        super.onAdLoaded(rewardedAd);
+//                        mRewardedAd = rewardedAd;
+//
+//                    }
+//
+//                });
+//
+//    }
 
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
-                        super.onAdLoaded(rewardedAd);
-                        mRewardedAd = rewardedAd;
-
-                    }
-
-                });
-
-    }
-
-    private void loadBanner(){
+    private void loadBanner() {
         MobileAds.initialize(StartActivity.this, initializationStatus -> {
 
         });
@@ -216,19 +190,18 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
     }
 
 
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.navInvite:
 
-                startActivity(new Intent(this,InviteActivity.class));
+                startActivity(new Intent(this, InviteActivity.class));
 
                 break;
             case R.id.navWallet:
 
-                startActivity(new Intent(this,WalletActivity.class));
+                startActivity(new Intent(this, WalletActivity.class));
 
                 break;
 //            case R.id.navTransactions:
@@ -236,16 +209,16 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 //                break;
 
             case R.id.navSupport:
-                startActivity(new Intent(this,NotificationsActivity.class));
+                startActivity(new Intent(this, NotificationsActivity.class));
 
                 break;
 
             case R.id.navAnnouncements:
-                startActivity(new Intent(this,AnnouncementActivity.class));
+                startActivity(new Intent(this, AnnouncementActivity.class));
                 break;
             case R.id.navSignOut:
                 firebaseAuth.signOut();
-                Intent intent = new Intent(this,MainActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 break;
@@ -255,11 +228,11 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         return true;
     }
 
-    private void initViewModels(){
-        viewModel.getUserInfo(this,firebaseUser.getUid(),binding);
+    private void initViewModels() {
+        viewModel.getUserInfo(this, firebaseUser.getUid(), binding, navigationView);
         viewModel.getTotalUsers(binding);
         viewModel.updateLastSeen(firebaseUser.getUid());
-        viewModel.getMainAnons(binding);
+        viewModel.getMainAnons(this, binding);
     }
 
 
@@ -267,7 +240,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 //        Calendar rightnow = Calendar.getInstance();
 //        return rightnow.getTimeInMillis() / 1000;
 //    }
-
 
 
     private void updatingUI() {
@@ -285,8 +257,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
             binding.mainProfile.startBtn.setText(ss);
             binding.mainProfile.progressBarCircle.setProgress(MAX_TIME - timeToStart);
             binding.mainProfile.startBtn.setEnabled(false);
-            binding.mainProfile.energyCount.setText("Wait for Next Claim!");
-            binding.mainProfile.energyCount.setEnabled(false);
 
             binding.mainProfile.energyStatusImage.setImageResource(R.drawable.hourglass_done_svgrepo_com);
         } else {
@@ -295,11 +265,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 timer1.cancel();
 
             binding.mainProfile.startBtn.setText("START");
-            binding.mainProfile.energyCount.setText("GET ENERGY!");
             binding.mainProfile.energyStatusImage.setImageResource(R.drawable.high_voltage_svgrepo_com);
 
         }
-
 
 
     }
@@ -312,6 +280,7 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 timeToStart -= 1;
                 updatingUI();
             }
+
             public void onFinish() {
                 timerState = TimerState.STOPPED;
 
@@ -352,15 +321,13 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         PendingIntent sender;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             sender = PendingIntent.getBroadcast(this,
-                    0,  intent,
+                    0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        }else {
+        } else {
             sender = PendingIntent.getBroadcast(this,
                     0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
         }
-
-
 
 
         AlarmManager am = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -376,9 +343,9 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             sender = PendingIntent.getBroadcast(this,
-                    0,  intent,
+                    0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        }else {
+        } else {
             sender = PendingIntent.getBroadcast(this,
                     0, intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
@@ -392,7 +359,6 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
 
 
     }
-
 
 
     @Override
@@ -412,47 +378,35 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
         updatingUI();
     }
 
-    private void sendPointToInviter(String userId){
-        FirebaseFirestore.getInstance().collection("Users").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if (documentSnapshot.exists()){
-                    User user = documentSnapshot.toObject(User.class);
-                    HashMap<String,Object> map = new HashMap<>();
-                    if (user!=null){
-                        FirebaseFirestore.getInstance().collection("Points").document("Points")
-                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                        if (documentSnapshot.exists()){
-                                            Point point = documentSnapshot.toObject(Point.class);
-                                            if (point!=null){
-                                                map.put("balance", user.getBalance() + point.getInvitePoint());
-                                                map.put("referral",user.getReferral() + point.getInvitePoint());
-                                                FirebaseFirestore.getInstance().collection("Users").document(userId)
-                                                        .update(map);
-                                            }
-                                        }
+    private void sendPointToInviter(String userId) {
+
+        CollectionReference collectionReference = firestore.collection("Users");
+        collectionReference.document(userId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                User user = documentSnapshot.toObject(User.class);
+                HashMap<String, Object> map = new HashMap<>();
+                if (user != null) {
+                    FirebaseFirestore.getInstance().collection("Points").document("Points")
+                            .get().addOnSuccessListener(documentSnapshot1 -> {
+                                if (documentSnapshot1.exists()) {
+                                    Point point = documentSnapshot1.toObject(Point.class);
+                                    if (point != null) {
+                                        map.put("balance", user.getBalance() + point.getInvitePoint());
+                                        map.put("referral", user.getReferral() + point.getInvitePoint());
+                                        collectionReference.document(userId).update(map);
                                     }
-                                });
-                    }
+                                }
+                            });
                 }
             }
         });
-
-
-
-
-
-
-
     }
 
 
-    private void saveUserToMyReferrals(String userId){
-        HashMap<String,Object> hashMap = new HashMap<>();
-        hashMap.put("inviterId",userId);
-        hashMap.put("receiverId",firebaseUser.getUid());
+    private void saveUserToMyReferrals(String userId) {
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("inviterId", userId);
+        hashMap.put("receiverId", firebaseUser.getUid());
 
 
         FirebaseDatabase.getInstance()
@@ -464,8 +418,8 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                 });
 
 
-
     }
+
     @Override
     public void onInstallReferrerSetupFinished(int responseCode) {
         switch (responseCode) {
@@ -474,34 +428,24 @@ public class StartActivity extends AppCompatActivity implements NavigationView.O
                     ReferrerDetails response = mReferrerClient.getInstallReferrer();
                     String referrer = response.getInstallReferrer();
 
-
-                    FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
-                                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    if (documentSnapshot.exists()){
-                                        User user = documentSnapshot.toObject(User.class);
-                                        if (user!=null && user.getReferralStatus()==0){
-                                            if (referrer.length()==28){
-                                                sendPointToInviter(referrer);
-                                                saveUserToMyReferrals(referrer);
-                                                HashMap<String, Object> hashMap = new HashMap<>();
-                                                hashMap.put("referralStatus", 1);
-                                                FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
-                                                        .update(hashMap);
-                                            }
+                    firestore.collection("Users").document(firebaseUser.getUid())
+                            .get().addOnSuccessListener(documentSnapshot -> {
+                                if (documentSnapshot.exists()) {
+                                    User user = documentSnapshot.toObject(User.class);
+                                    if (user != null && user.getReferralStatus() == 0) {
+                                        if (referrer.length() == 28) {
+                                            sendPointToInviter(referrer);
+                                            saveUserToMyReferrals(referrer);
+                                            HashMap<String, Object> hashMap = new HashMap<>();
+                                            hashMap.put("referralStatus", 1);
+                                            firestore.collection("Users").document(firebaseUser.getUid())
+                                                    .update(hashMap);
                                         }
                                     }
                                 }
                             });
 
 
-
-
-
-
-
-                    System.out.println("davet " + referrer);
                     mReferrerClient.endConnection();
                 } catch (RemoteException e) {
                     e.printStackTrace();

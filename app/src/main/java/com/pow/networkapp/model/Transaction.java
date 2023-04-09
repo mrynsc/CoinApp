@@ -8,7 +8,7 @@ public class Transaction {
     private int withdrawal;
     private String id;
 
-    public Transaction(){
+    public Transaction() {
     }
 
 

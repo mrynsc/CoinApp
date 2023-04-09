@@ -8,15 +8,15 @@ public class Anons {
     private String time;
     private int status;
 
-    public Anons(){
+    public Anons() {
 
     }
 
-    public Anons(String title, String description, String time,int status) {
+    public Anons(String title, String description, String time, int status) {
         this.title = title;
         this.description = description;
         this.time = time;
-        this.status= status;
+        this.status = status;
     }
 
     public int getStatus() {

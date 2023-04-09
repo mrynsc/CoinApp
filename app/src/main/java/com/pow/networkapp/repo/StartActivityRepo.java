@@ -2,26 +2,21 @@ package com.pow.networkapp.repo;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.view.View;
+import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.firestore.AggregateQuery;
+import com.google.firebase.firestore.AggregateQuerySnapshot;
+import com.google.firebase.firestore.AggregateSource;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.model.MainAnons;
 import com.pow.networkapp.model.Point;
 import com.pow.networkapp.model.User;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,27 +32,32 @@ import okhttp3.Response;
 
 public class StartActivityRepo {
 
-    private final FirebaseDatabase firebaseDatabase;
+    private final FirebaseFirestore firestore;
 
-    public StartActivityRepo(){
-        firebaseDatabase = FirebaseDatabase.getInstance();
+    public StartActivityRepo() {
+        firestore = FirebaseFirestore.getInstance();
     }
 
 
-    public void getUserInfo(Activity activity,String userId, ActivityStartBinding binding){
-        FirebaseFirestore.getInstance().collection("Users").document(userId)
-                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
-                            User user = documentSnapshot.toObject(User.class);
-                            if (user!=null){
-                                System.out.println("bilgi "  + user.getUsername());
-                                binding.mainProfile.coinText.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
-                                binding.mainProfile.referral.setText(new StringBuilder().append("").append(user.getReferral()).toString());
-                                Picasso.get().load(user.getImage()).into(binding.userImage);
-                                binding.mainProfile.username.setText(user.getUsername());
-                            }
+    public void getUserInfo(Activity activity, String userId, ActivityStartBinding binding, NavigationView navigationView) {
+        firestore.collection("Users").document(userId)
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+
+                            binding.mainProfile.coinText.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
+                            binding.mainProfile.referral.setText(new StringBuilder().append("").append(user.getReferral()).toString());
+
+                            SharedPreferences preferences = activity.getSharedPreferences("PREFS", 0);
+                            String username = preferences.getString("username", "");
+                            String image = preferences.getString("image", "");
+                            //Picasso.get().load(image).into(binding.userImage);
+                            binding.mainProfile.username.setText(username);
+
+                            View headerView = navigationView.inflateHeaderView(R.layout.nav_header);
+                            TextView usernameHeader = headerView.findViewById(R.id.usernameHeader);
+                            usernameHeader.setText(username);
                         }
                     }
                 });
@@ -66,36 +66,19 @@ public class StartActivityRepo {
     }
 
 
+    public void getTotalUsers(ActivityStartBinding binding) {
 
-    public void getTotalUsers(ActivityStartBinding binding){
-//        firebaseDatabase.getReference().child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.exists()){
-//                    long users = snapshot.getChildrenCount();
-//                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(users).toString());
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-        FirebaseFirestore.getInstance().collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    int count = task.getResult().size();
-                    binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(count).toString());
-                } else {
-
-                }
+        CollectionReference collection = firestore.collection("Users");
+        AggregateQuery countQuery = collection.count();
+        countQuery.get(AggregateSource.SERVER).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                AggregateQuerySnapshot snapshot = task.getResult();
+                binding.mainProfile.totalUsers.setText(new StringBuilder().append("Total POW Users: ").append(snapshot.getCount()).toString());
             }
         });
     }
 
-    public long getNow(Activity activity){
+    public long getNow(Activity activity) {
         final Calendar calendar = Calendar.getInstance();
         OkHttpClient client = new OkHttpClient();
         String url = "https://www.timeapi.io/api/Time/current/zone?timeZone=Europe/Istanbul";
@@ -107,6 +90,7 @@ public class StartActivityRepo {
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
             }
+
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (response.isSuccessful()) {
@@ -141,72 +125,67 @@ public class StartActivityRepo {
             }
         });
 
-        return calendar.getTimeInMillis()/1000;
+        return calendar.getTimeInMillis() / 1000;
 
     }
 
 
-    public void updateBalance(String myId){
-        FirebaseFirestore.getInstance().collection("Users").document(myId)
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
-                            User user = documentSnapshot.toObject(User.class);
-                            if (user!=null){
+    public void updateBalance(String myId) {
+        CollectionReference collection = firestore.collection("Users");
+        collection.document(myId).get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                User user = documentSnapshot.toObject(User.class);
+                if (user != null) {
 
-                                HashMap<String,Object> map = new HashMap<>();
-                                FirebaseFirestore.getInstance().collection("Points").document("Points")
-                                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                            @Override
-                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                if (documentSnapshot.exists()){
-                                                    Point point = documentSnapshot.toObject(Point.class);
-                                                    if (point!=null){
-                                                        map.put("claimed",user.getClaimed() + point.getCounterPoint());
-                                                        map.put("balance",user.getBalance() + point.getCounterPoint());
+                    HashMap<String, Object> map = new HashMap<>();
+                    FirebaseFirestore.getInstance().collection("Points").document("Points")
+                            .get().addOnSuccessListener(documentSnapshot1 -> {
+                                if (documentSnapshot1.exists()) {
+                                    Point point = documentSnapshot1.toObject(Point.class);
+                                    if (point != null) {
+                                        map.put("claimed", user.getClaimed() + point.getCounterPoint());
+                                        map.put("balance", user.getBalance() + point.getCounterPoint());
 
-                                                        FirebaseFirestore.getInstance().collection("Users").document(myId)
-                                                                .update(map);
-                                                    }
-                                                }
-                                            }
-                                        });
-
-
-
-
-
-
-                            }
-                        }
-                    }
-                });
-
-
+                                        collection.document(myId).update(map);
+                                    }
+                                }
+                            });
+                }
+            }
+        });
     }
 
 
 
 
-
-    public void getMainAnons(ActivityStartBinding binding){
-        DocumentReference collectionReference = FirebaseFirestore.getInstance().collection("MainAnons").document("MainAnons");
+    public void getMainAnons(Activity activity, ActivityStartBinding binding) {
+        DocumentReference collectionReference = firestore.collection("MainAnons").document("MainAnons");
         collectionReference.get().addOnSuccessListener(documentSnapshot -> {
             MainAnons anons = documentSnapshot.toObject(MainAnons.class);
             if (anons != null && anons.getStatus() == 1) {
-                binding.mainProfile.infotext.setText(anons.getAnons());
+                SharedPreferences sharedPreferences = activity.getSharedPreferences("PREFS", 0);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("anons", anons.getAnons());
+                editor.apply();
+                SharedPreferences preferences = activity.getSharedPreferences("PREFS", 0);
+                String mainAnons = preferences.getString("anons", "");
+                if (mainAnons.equals("")) {
+                    binding.mainProfile.infotext.setText(anons.getAnons());
+                } else {
+                    binding.mainProfile.infotext.setText(mainAnons);
+
+                }
             }
         });
 
 
     }
 
-    public void updateLastSeen(String myId){
-        HashMap<String,Object> map = new HashMap<>();
-        map.put("lastSeen",System.currentTimeMillis());
+    public void updateLastSeen(String myId) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("lastSeen", System.currentTimeMillis());
 
-        FirebaseFirestore.getInstance().collection("Users").document(myId)
+        firestore.collection("Users").document(myId)
                 .update(map);
     }
 

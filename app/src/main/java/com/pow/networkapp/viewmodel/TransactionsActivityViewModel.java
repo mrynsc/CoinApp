@@ -10,18 +10,18 @@ import java.util.List;
 
 public class TransactionsActivityViewModel extends ViewModel {
 
-    private TransactionsActivityRepo repo;
-    private LiveData<String> errorMessage;
-    private LiveData<List<Transaction>> liveData;
+    private final TransactionsActivityRepo repo;
+    private final LiveData<String> errorMessage;
+    private final LiveData<List<Transaction>> liveData;
 
 
-    public TransactionsActivityViewModel(){
+    public TransactionsActivityViewModel() {
         repo = new TransactionsActivityRepo();
-        errorMessage= repo.getError();
+        errorMessage = repo.getError();
         liveData = repo.getAllTransactions();
     }
 
-    public void getTransactions(String userId){
+    public void getTransactions(String userId) {
         repo.getTransactions(userId);
     }
 

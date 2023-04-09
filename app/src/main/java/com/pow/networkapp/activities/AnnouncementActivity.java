@@ -1,28 +1,27 @@
 package com.pow.networkapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.pow.networkapp.R;
 import com.pow.networkapp.adapter.AnonsAdapter;
 import com.pow.networkapp.databinding.ActivityAnnouncementBinding;
 import com.pow.networkapp.model.Anons;
 import com.pow.networkapp.viewmodel.AnonsViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class AnnouncementActivity extends AppCompatActivity {
 
@@ -32,6 +31,7 @@ public class AnnouncementActivity extends AppCompatActivity {
     private AnonsViewModel viewModel;
     private ProgressDialog pd;
 
+    private InterstitialAd mInterstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,25 +40,80 @@ public class AnnouncementActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
-        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd = new ProgressDialog(this, R.style.CustomDialog);
         pd.setCancelable(false);
         pd.show();
 
 
         viewModel = new ViewModelProvider(this).get(AnonsViewModel.class);
 
-        initRecycler();
-        getAnnouncements();
 
         loadBanner();
-
+        loadAds();
     }
 
 
-    private void loadBanner(){
+    private void loadAds() {
+        MobileAds.initialize(AnnouncementActivity.this, initializationStatus -> {
+
+        });
+        AdRequest adRequest = new AdRequest.Builder().build();
+
+        InterstitialAd.load(AnnouncementActivity.this, getString(R.string.intersId), adRequest,
+                new InterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        mInterstitialAd = null;
+                    }
+
+                    @Override
+                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        mInterstitialAd = interstitialAd;
+                        mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdClicked() {
+                                super.onAdClicked();
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                super.onAdDismissedFullScreenContent();
+                                //Toast.makeText(WatchAdsActivity.this, "kapandı", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(@NonNull AdError adError) {
+                                super.onAdFailedToShowFullScreenContent(adError);
+                                //Toast.makeText(WatchAdsActivity.this, "tıklandı2", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdImpression() {
+                                super.onAdImpression();
+                                //Toast.makeText(getContext(), "gösteriyor", Toast.LENGTH_SHORT).show();
+
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                super.onAdShowedFullScreenContent();
+                                //Toast.makeText(getContext(), "full", Toast.LENGTH_SHORT).show();
+
+                            }
+                        });
+                    }
+
+                });
+    }
+
+
+    private void loadBanner() {
         MobileAds.initialize(AnnouncementActivity.this, initializationStatus -> {
             pd.dismiss();
         });
@@ -68,32 +123,39 @@ public class AnnouncementActivity extends AppCompatActivity {
     }
 
 
+//    private void initRecycler(){
+//        anonsList = new ArrayList<>();
+//        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        binding.recyclerView.setHasFixedSize(true);
+//        anonsAdapter = new AnonsAdapter(anonsList,this);
+//        binding.recyclerView.setAdapter(anonsAdapter);
+//    }
+//
+//
+//    @SuppressLint("NotifyDataSetChanged")
+//    private void getAnnouncements(){
+//        viewModel.getAnnouncements();
+//        viewModel.getAllAnnouncements().observe((LifecycleOwner) this, posts -> {
+//            pd.dismiss();
+//            anonsList.addAll(posts);
+//            anonsAdapter.notifyDataSetChanged();
+//            if (anonsList.size()==0){
+//                binding.lottieAnimation.setVisibility(View.VISIBLE);
+//            }else {
+//                binding.lottieAnimation.setVisibility(View.GONE);
+//            }
+//
+//        });
+//        viewModel.getErrorMessage().observe(this, error -> pd.dismiss());
+//    }
 
-    private void initRecycler(){
-        anonsList = new ArrayList<>();
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerView.setHasFixedSize(true);
-        anonsAdapter = new AnonsAdapter(anonsList,this);
-        binding.recyclerView.setAdapter(anonsAdapter);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mInterstitialAd != null) {
+            mInterstitialAd.show(this);
+        }
+
     }
-
-
-    @SuppressLint("NotifyDataSetChanged")
-    private void getAnnouncements(){
-        viewModel.getAnnouncements();
-        viewModel.getAllAnnouncements().observe((LifecycleOwner) this, posts -> {
-            pd.dismiss();
-            anonsList.addAll(posts);
-            anonsAdapter.notifyDataSetChanged();
-            if (anonsList.size()==0){
-                binding.lottieAnimation.setVisibility(View.VISIBLE);
-            }else {
-                binding.lottieAnimation.setVisibility(View.GONE);
-            }
-
-        });
-        viewModel.getErrorMessage().observe(this, error -> pd.dismiss());
-    }
-
 
 }

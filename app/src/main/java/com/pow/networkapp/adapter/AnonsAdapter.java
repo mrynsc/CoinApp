@@ -9,12 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.pow.networkapp.databinding.AnonsItemBinding;
-import com.pow.networkapp.databinding.TransactionItemBinding;
 import com.pow.networkapp.model.Anons;
-import com.pow.networkapp.model.Transaction;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,9 +20,9 @@ public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
     private final List<Anons> anonsArrayList;
     private final Context context;
 
-    public AnonsAdapter(List<Anons>anonsArrayList,Context context){
-        this.anonsArrayList= anonsArrayList;
-        this.context=context;
+    public AnonsAdapter(List<Anons> anonsArrayList, Context context) {
+        this.anonsArrayList = anonsArrayList;
+        this.context = context;
     }
 
     public static class MyHolder extends RecyclerView.ViewHolder {
@@ -40,7 +37,7 @@ public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        AnonsItemBinding recyclerRowBinding = AnonsItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
+        AnonsItemBinding recyclerRowBinding = AnonsItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new MyHolder(recyclerRowBinding);
     }
 
@@ -55,10 +52,9 @@ public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
         holder.recyclerRowBinding.timeText.setText(convertTime(anons.getTime()));
 
 
-
     }
 
-    private String convertTime(String time){
+    private String convertTime(String time) {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM k:mm");
         String dateString = formatter.format(new Date(Long.parseLong(String.valueOf(time))));
@@ -68,7 +64,7 @@ public class AnonsAdapter extends RecyclerView.Adapter<AnonsAdapter.MyHolder> {
 
     @Override
     public int getItemCount() {
-        return null!=anonsArrayList?anonsArrayList.size():0;
+        return null != anonsArrayList ? anonsArrayList.size() : 0;
     }
 
 

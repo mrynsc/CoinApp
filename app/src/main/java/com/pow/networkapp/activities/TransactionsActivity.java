@@ -1,20 +1,16 @@
 package com.pow.networkapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +23,7 @@ import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.viewmodel.TransactionsActivityViewModel;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class TransactionsActivity extends AppCompatActivity {
 
@@ -36,7 +33,7 @@ public class TransactionsActivity extends AppCompatActivity {
     private TransactionsAdapter transactionsAdapter;
     private FirebaseUser firebaseUser;
     private ProgressDialog pd;
-    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    private final NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
 
     @Override
@@ -46,13 +43,13 @@ public class TransactionsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         viewModel = new ViewModelProvider(this).get(TransactionsActivityViewModel.class);
 
-        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd = new ProgressDialog(this, R.style.CustomDialog);
         pd.setCanceledOnTouchOutside(false);
         pd.show();
 
@@ -62,7 +59,7 @@ public class TransactionsActivity extends AppCompatActivity {
 
     }
 
-    private void loadBanner(){
+    private void loadBanner() {
         MobileAds.initialize(TransactionsActivity.this, initializationStatus -> {
         });
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -70,11 +67,11 @@ public class TransactionsActivity extends AppCompatActivity {
 
     }
 
-    private void initRecycler(){
+    private void initRecycler() {
         transactionArrayList = new ArrayList<>();
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerView.setHasFixedSize(true);
-        transactionsAdapter = new TransactionsAdapter(transactionArrayList,this);
+        transactionsAdapter = new TransactionsAdapter(transactionArrayList);
         binding.recyclerView.setAdapter(transactionsAdapter);
     }
 
@@ -82,13 +79,13 @@ public class TransactionsActivity extends AppCompatActivity {
     private void getTransactions() {
 
         viewModel.getTransactions(firebaseUser.getUid());
-        viewModel.getAllTransactions().observe((LifecycleOwner) this, posts -> {
+        viewModel.getAllTransactions().observe(this, posts -> {
             pd.dismiss();
             transactionArrayList.addAll(posts);
             transactionsAdapter.notifyDataSetChanged();
-            if (transactionArrayList.size()==0){
+            if (transactionArrayList.isEmpty()) {
                 binding.transactionInfoLay.setVisibility(View.VISIBLE);
-            }else {
+            } else {
                 binding.transactionInfoLay.setVisibility(View.GONE);
             }
 

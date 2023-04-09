@@ -1,12 +1,5 @@
 package com.pow.networkapp.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -14,17 +7,17 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,24 +25,16 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.pow.networkapp.R;
 import com.pow.networkapp.adapter.ReferralAdapter;
-import com.pow.networkapp.adapter.UserAdapter;
 import com.pow.networkapp.databinding.ActivityInviteBinding;
-import com.pow.networkapp.interfaces.OnClick;
 import com.pow.networkapp.model.Referral;
-import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
 import com.pow.networkapp.viewmodel.ReferralViewModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-
-import io.github.muddz.styleabletoast.StyleableToast;
+import java.util.Objects;
 
 public class InviteActivity extends AppCompatActivity {
 
@@ -62,10 +47,9 @@ public class InviteActivity extends AppCompatActivity {
     private ReferralViewModel viewModel;
     private ProgressDialog pd;
 
-    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    private final NetworkChangeListener networkChangeListener = new NetworkChangeListener();
 
     private InterstitialAd mInterstitialAd;
-
 
 
     @Override
@@ -75,11 +59,11 @@ public class InviteActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
 
-        pd = new ProgressDialog(this,R.style.CustomDialog);
+        pd = new ProgressDialog(this, R.style.CustomDialog);
         pd.setCancelable(false);
 
 
@@ -95,9 +79,8 @@ public class InviteActivity extends AppCompatActivity {
 
 
         binding.copyBtn.setOnClickListener(view -> {
-            String shareText = new StringBuilder().append("Come to POW Network App and Earn POW Coin. Use my referral link. ")
-
-                    .append("https://play.google.com/store/apps/details?id=com.pow.networkapp&referrer=").append(firebaseUser.getUid()).toString();
+            String shareText = "Come to POW Network App and Earn POW Coin. Use my referral link. " +
+                    "https://play.google.com/store/apps/details?id=com.pow.networkapp&referrer=" + firebaseUser.getUid();
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
             intent.putExtra(Intent.EXTRA_SUBJECT, "Subject Here");
@@ -112,7 +95,7 @@ public class InviteActivity extends AppCompatActivity {
     }
 
 
-    private void loadAds(){
+    private void loadAds() {
         MobileAds.initialize(InviteActivity.this, initializationStatus -> {
 
         });
@@ -168,7 +151,7 @@ public class InviteActivity extends AppCompatActivity {
                 });
     }
 
-    private void loadBanner(){
+    private void loadBanner() {
         MobileAds.initialize(InviteActivity.this, initializationStatus -> {
             pd.dismiss();
         });
@@ -178,29 +161,28 @@ public class InviteActivity extends AppCompatActivity {
     }
 
 
-    private void initRecycler(){
+    private void initRecycler() {
         userArrayList = new ArrayList<>();
-        binding.recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        binding.recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
         binding.recyclerView.setHasFixedSize(true);
-        referralAdapter = new ReferralAdapter(userArrayList,this);
+        referralAdapter = new ReferralAdapter(userArrayList);
         binding.recyclerView.setAdapter(referralAdapter);
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void getInviters(){
+    private void getInviters() {
         FirebaseDatabase.getInstance().getReference().child("Referrals").child(firebaseUser.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
+                        if (snapshot.exists()) {
                             long counter = snapshot.getChildrenCount();
-                            binding.headerText.setText(new StringBuilder().append("My Referrals (").append(counter).append(")").toString());
+                            binding.headerText.setText("My Referrals (" + counter + ")");
                         }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-
 
                     }
                 });
@@ -210,14 +192,14 @@ public class InviteActivity extends AppCompatActivity {
             userArrayList.addAll(posts);
             pd.dismiss();
             referralAdapter.notifyDataSetChanged();
-            if (userArrayList.size()==0){
+            if (userArrayList.isEmpty()) {
                 pd.dismiss();
                 binding.nothingLay.setVisibility(View.VISIBLE);
                 binding.headerText.setVisibility(View.GONE);
-            }else{
+            } else {
                 binding.nothingLay.setVisibility(View.GONE);
                 binding.headerText.setVisibility(View.VISIBLE);
-                binding.headerText.setText(new StringBuilder().append("My Referrals (").append(userArrayList.size()).append(")").toString());
+                binding.headerText.setText("My Referrals (" + userArrayList.size() + ")");
 
             }
 
@@ -242,7 +224,7 @@ public class InviteActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mInterstitialAd!=null){
+        if (mInterstitialAd != null) {
             mInterstitialAd.show(this);
         }
 

@@ -16,21 +16,20 @@ import java.util.List;
 
 public class TransactionsActivityRepo {
 
-    private FirebaseDatabase database;
-    private MutableLiveData<String> errorMessage;
-    private MutableLiveData<List<Transaction>> mutableLiveData;
-    private List<Transaction> transactionList;
+    private final FirebaseDatabase database;
+    private final MutableLiveData<String> errorMessage;
+    private final MutableLiveData<List<Transaction>> mutableLiveData;
+    private final List<Transaction> transactionList;
 
 
-    public TransactionsActivityRepo(){
+    public TransactionsActivityRepo() {
         database = FirebaseDatabase.getInstance();
         errorMessage = new MutableLiveData<>();
         mutableLiveData = new MutableLiveData<>();
         transactionList = new ArrayList<>();
-
     }
 
-    public void getTransactions(String userId){
+    public void getTransactions(String userId) {
         try {
             database.getReference().child("MyTransactions").child(userId)
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -39,10 +38,10 @@ public class TransactionsActivityRepo {
                             transactionList.clear();
                             try {
                                 for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                                    if (snapshot.exists()){
+                                    if (snapshot.exists()) {
                                         Transaction transaction = dataSnapshot.getValue(Transaction.class);
 
-                                        if (transaction != null ) {
+                                        if (transaction != null) {
                                             transactionList.add(transaction);
                                         }
 
@@ -68,6 +67,7 @@ public class TransactionsActivityRepo {
             e.printStackTrace();
         }
     }
+
     public LiveData<List<Transaction>> getAllTransactions() {
         return mutableLiveData;
     }
@@ -75,9 +75,6 @@ public class TransactionsActivityRepo {
     public LiveData<String> getError() {
         return errorMessage;
     }
-
-
-
 
 
 }

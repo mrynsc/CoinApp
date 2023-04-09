@@ -12,7 +12,7 @@
     <string name="invite_amp_earn"><![CDATA[Invite & Earn]]></string>
     <string name="wallet">Balance</string>
     <string name="transactions">Transactions</string>
-    <string name="announcement">Announcements</string>
+    <string name="announcement">About Mining</string>
     <string name="notifications">Notifications</string>
     <string name="support">KYC</string>
     <string name="sign_out">Sign Out</string>
@@ -34,7 +34,6 @@
     <string name="announcement_you_get_30_pow_when_you_press_start_once_every_4_hours_you_earn_50_pow_by_inviting_your_friends">You get 30 POW when you press start once every 4 hours. You earn 50 POW by inviting your friends.</string>
     <string name="balance">BALANCE</string>
 
-
     <string name="bannerId">ca-app-pub-4799864564577169/8830865024</string>
     <string name="intersId">ca-app-pub-4799864564577169/8639293332</string>
     <string name="rewardedId">ca-app-pub-4799864564577169/1882313292</string>
@@ -42,5 +41,18 @@
     <!--    ca-app-pub-3940256099942544/6300978111-->
     <!--    ca-app-pub-3940256099942544/1033173712-->
 
+    <string name="anons">🗞About mining earnings
+\n 0 - 3k members
+⛏Mining 30 POW - 👤Reference 50 POW
+\n3k - 15k members
+⛏Mining 25 POW - 👤Reference 25 POW
+\n15k - 30k members
+⛏Mining 15 POW - 👤Reference 20 POW
+\n30k - 100k members
+⛏Mining 10 POW - 👤Reference 15 POW
+\n100k - 500k members
+⛏Mining 5 POW - 👤Reference 10 POW
+\n+500k members
+⛏Mining 1 POW - 👤Reference 5 POW</string>
 
 </resources>

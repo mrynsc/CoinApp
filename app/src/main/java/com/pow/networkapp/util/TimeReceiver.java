@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -21,11 +22,20 @@ import com.pow.networkapp.activities.MainActivity;
 public class TimeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        Intent i=new Intent(context, MainActivity.class);
+        Intent i = new Intent(context, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pIntent=PendingIntent.getActivity(context,0,i,0);
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntent = PendingIntent.getActivity(context,
+                    0, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder b=new NotificationCompat.Builder(context,context.getString(R.string.default_notification_channel_id));
+        }else {
+            pendingIntent = PendingIntent.getActivity(context,
+                    0, i, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        }
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(context, context.getString(R.string.default_notification_channel_id));
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         b.setSound(notification)
                 .setContentTitle("Timer Has Finished!")
@@ -33,13 +43,13 @@ public class TimeReceiver extends BroadcastReceiver {
                 .setContentText("Come and get your coins.")
                 .setSmallIcon(R.drawable.powlogo)
                 .setColor(context.getResources().getColor(R.color.colorAccent))
-                .setContentIntent(pIntent);
+                .setContentIntent(pendingIntent);
 
         NotificationManager mNotifyMgr = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(context.getString(R.string.default_notification_channel_id), context.getString(R.string.notification_channel_name),
-                    mNotifyMgr.IMPORTANCE_HIGH);
+                    NotificationManager.IMPORTANCE_HIGH);
             channel.enableLights(true);
             channel.setLightColor(Color.RED);
             channel.setShowBadge(true);
@@ -48,13 +58,8 @@ public class TimeReceiver extends BroadcastReceiver {
         }
 
         int mNotificationId = (int) System.currentTimeMillis();
-        Notification n=b.build();
+        Notification n = b.build();
         mNotifyMgr.notify(mNotificationId, b.build());
-
-
-
-
-
 
 
     }

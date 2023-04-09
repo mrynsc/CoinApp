@@ -1,30 +1,24 @@
 package com.pow.networkapp.activities;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
-import android.util.Log;
-
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.MobileAds;
-import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityNotificationsBinding;
 
-public class NotificationsActivity extends AppCompatActivity {
+import java.util.Objects;
 
-    private ActivityNotificationsBinding binding;
+public class NotificationsActivity extends AppCompatActivity {
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityNotificationsBinding.inflate(getLayoutInflater());
+        ActivityNotificationsBinding binding = ActivityNotificationsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         binding.toolbar.setNavigationOnClickListener(view -> finish());
 
 

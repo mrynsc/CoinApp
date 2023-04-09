@@ -1,14 +1,12 @@
 package com.pow.networkapp.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.TransactionItemBinding;
 import com.pow.networkapp.model.Transaction;
 
@@ -18,12 +16,10 @@ import java.util.Date;
 
 public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapter.MyHolder> {
 
-    private ArrayList<Transaction> transactionArrayList;
-    private Context context;
+    private final ArrayList<Transaction> transactionArrayList;
 
-    public TransactionsAdapter(ArrayList<Transaction>transactionArrayList,Context context){
-        this.transactionArrayList= transactionArrayList;
-        this.context=context;
+    public TransactionsAdapter(ArrayList<Transaction> transactionArrayList) {
+        this.transactionArrayList = transactionArrayList;
     }
 
     public static class MyHolder extends RecyclerView.ViewHolder {
@@ -38,7 +34,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        TransactionItemBinding recyclerRowBinding = TransactionItemBinding.inflate(LayoutInflater.from(parent.getContext()),parent,false);
+        TransactionItemBinding recyclerRowBinding = TransactionItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new MyHolder(recyclerRowBinding);
     }
 
@@ -53,12 +49,9 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
         holder.recyclerRowBinding.timeItem.setText(new StringBuilder().append("Time: ").append(convertTime(transaction.getTime())).toString());
 
 
-
-
-
     }
 
-    private String convertTime(long time){
+    private String convertTime(long time) {
         @SuppressLint("SimpleDateFormat")
         SimpleDateFormat formatter = new SimpleDateFormat("dd MMMM k:mm");
         String dateString = formatter.format(new Date(Long.parseLong(String.valueOf(time))));
@@ -68,7 +61,7 @@ public class TransactionsAdapter extends RecyclerView.Adapter<TransactionsAdapte
 
     @Override
     public int getItemCount() {
-        return null!=transactionArrayList?transactionArrayList.size():0;
+        return null != transactionArrayList ? transactionArrayList.size() : 0;
     }
 
 

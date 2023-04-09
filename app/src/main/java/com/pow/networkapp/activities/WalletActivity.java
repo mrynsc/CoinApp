@@ -1,26 +1,21 @@
 package com.pow.networkapp.activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import com.appodeal.ads.Appodeal;
-import com.appodeal.ads.BannerCallbacks;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -28,13 +23,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.pow.networkapp.R;
 import com.pow.networkapp.databinding.ActivityWalletBinding;
 import com.pow.networkapp.model.User;
 import com.pow.networkapp.util.NetworkChangeListener;
-import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 
@@ -42,10 +35,10 @@ public class WalletActivity extends AppCompatActivity {
 
     private ActivityWalletBinding binding;
     private FirebaseUser firebaseUser;
-    private final int minWithdrawal = 15000;
+    private final int MIN_WITHDRAW = 15000;
     private int myTotalBalance;
     private int myRequest;
-    private NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    private final NetworkChangeListener networkChangeListener = new NetworkChangeListener();
     private InterstitialAd mInterstitialAd;
 
 
@@ -66,38 +59,38 @@ public class WalletActivity extends AppCompatActivity {
         loadAds();
         getBalanceInfo();
 
-        if (binding.formLayout.getVisibility()==View.VISIBLE){
+        if (binding.formLayout.getVisibility() == View.VISIBLE) {
             binding.confirmBtn.setOnClickListener(view -> {
-                if (binding.walletAddressEt.getText().toString().trim().length()>1 && binding.withdrawalEt.getText().toString().trim().length()>0){
+                if (binding.walletAddressEt.getText().toString().trim().length() > 1 && binding.withdrawalEt.getText().toString().trim().length() > 0) {
                     String address = binding.walletAddressEt.getText().toString().trim();
                     try {
                         myTotalBalance = Integer.parseInt(binding.totalBalance.getText().toString());
                         myRequest = Integer.parseInt(binding.withdrawalEt.getText().toString());
-                    }catch (NumberFormatException e){
+                    } catch (NumberFormatException e) {
                         e.printStackTrace();
                     }
-                    if (myTotalBalance >= myRequest){
+                    if (myTotalBalance >= myRequest) {
 
                         DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
                         String id = reference.push().getKey();
                         long time = System.currentTimeMillis();
-                        HashMap<String,Object> map = new HashMap<>();
-                        map.put("address",address);
-                        map.put("userId",firebaseUser.getUid());
-                        map.put("time",time);
-                        map.put("withdrawal",myRequest);
-                        map.put("id",id);
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("address", address);
+                        map.put("userId", firebaseUser.getUid());
+                        map.put("time", time);
+                        map.put("withdrawal", myRequest);
+                        map.put("id", id);
 
                         if (id != null) {
                             reference.child("MyTransactions").child(firebaseUser.getUid()).child(id)
                                     .setValue(map).addOnSuccessListener(unused -> {
                                         lostBalance(myRequest);
-                                        HashMap<String,Object> hashMap = new HashMap<>();
-                                        hashMap.put("address",address);
-                                        hashMap.put("userId",firebaseUser.getUid());
-                                        hashMap.put("withdrawal",myRequest);
-                                        hashMap.put("time",time);
-                                        hashMap.put("id",id);
+                                        HashMap<String, Object> hashMap = new HashMap<>();
+                                        hashMap.put("address", address);
+                                        hashMap.put("userId", firebaseUser.getUid());
+                                        hashMap.put("withdrawal", myRequest);
+                                        hashMap.put("time", time);
+                                        hashMap.put("id", id);
                                         reference.child("Transactions").child(id).setValue(hashMap);
                                         finish();
 
@@ -105,13 +98,7 @@ public class WalletActivity extends AppCompatActivity {
                         }
 
 
-
-
-
                     }
-
-
-
 
 
                 }
@@ -123,8 +110,7 @@ public class WalletActivity extends AppCompatActivity {
     }
 
 
-
-    private void loadBanner(){
+    private void loadBanner() {
         MobileAds.initialize(WalletActivity.this, initializationStatus -> {
         });
         AdRequest adRequest = new AdRequest.Builder().build();
@@ -132,16 +118,16 @@ public class WalletActivity extends AppCompatActivity {
 
     }
 
-    private void lostBalance(int lostValue){
+    private void lostBalance(int lostValue) {
         FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
+                        if (snapshot.exists()) {
                             User user = snapshot.getValue(User.class);
-                            HashMap<String,Object> map = new HashMap<>();
+                            HashMap<String, Object> map = new HashMap<>();
                             if (user != null) {
-                                map.put("balance",user.getBalance() - lostValue);
+                                map.put("balance", user.getBalance() - lostValue);
                             }
                             FirebaseDatabase.getInstance().getReference().child("Users").child(firebaseUser.getUid()).updateChildren(map);
                         }
@@ -156,39 +142,33 @@ public class WalletActivity extends AppCompatActivity {
     }
 
 
-
-    private void getBalanceInfo(){
+    private void getBalanceInfo() {
         FirebaseFirestore.getInstance().collection("Users").document(firebaseUser.getUid())
-                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
-                            User user = documentSnapshot.toObject(User.class);
-                            if (user!=null){
-                                binding.claimedBalance.setText(new StringBuilder().append("").append(user.getClaimed()).toString());
-                                binding.referralBalance.setText(new StringBuilder().append("").append(user.getReferral()).toString());
+                .get().addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        User user = documentSnapshot.toObject(User.class);
+                        if (user != null) {
+                            binding.claimedBalance.setText("" + user.getClaimed());
+                            binding.referralBalance.setText("" + user.getReferral());
 
-                                binding.totalBalance.setText(new StringBuilder().append(user.getBalance()).toString());
+                            binding.totalBalance.setText(String.valueOf(user.getBalance()));
 
-                                binding.currentBalance.setText(new StringBuilder().append(user.getBalance()).toString());
+                            binding.currentBalance.setText(String.valueOf(user.getBalance()));
 
 
-                                int a = (int) (user.getBalance() * 100 / minWithdrawal);
-                                binding.earningProgress.setProgress((Math.min(a, 100)));
+                            int a = (user.getBalance() * 100 / MIN_WITHDRAW);
+                            binding.earningProgress.setProgress((Math.min(a, 100)));
 
-                                binding.earningPercent.setText(new StringBuilder().append(Math.min(a, 100)).append("%").toString());
-                            }
+                            binding.earningPercent.setText(Math.min(a, 100) + "%");
                         }
                     }
                 });
 
 
-
     }
 
 
-
-    private void loadAds(){
+    private void loadAds() {
         MobileAds.initialize(WalletActivity.this, initializationStatus -> {
 
         });
@@ -245,9 +225,6 @@ public class WalletActivity extends AppCompatActivity {
     }
 
 
-
-
-
     @Override
     protected void onStart() {
         IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
@@ -264,7 +241,7 @@ public class WalletActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mInterstitialAd!=null){
+        if (mInterstitialAd != null) {
             mInterstitialAd.show(this);
         }
     }

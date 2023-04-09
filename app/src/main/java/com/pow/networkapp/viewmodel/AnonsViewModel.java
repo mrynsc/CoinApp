@@ -5,9 +5,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.pow.networkapp.model.Anons;
-import com.pow.networkapp.model.Referral;
 import com.pow.networkapp.repo.AnonsRepo;
-import com.pow.networkapp.repo.ReferralRepo;
 
 import java.util.List;
 
@@ -18,13 +16,13 @@ public class AnonsViewModel extends ViewModel {
     private final LiveData<List<Anons>> liveData;
 
 
-    public AnonsViewModel(){
+    public AnonsViewModel() {
         repo = new AnonsRepo();
-        errorMessage= repo.getError();
+        errorMessage = repo.getError();
         liveData = repo.getAllAnnouncements();
     }
 
-    public void getAnnouncements(){
+    public void getAnnouncements() {
         repo.getAnnouncements();
     }
 

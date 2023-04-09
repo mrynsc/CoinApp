@@ -17,24 +17,21 @@ public class NetworkChangeListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (!Common.isConnectedToInternet(context)){
-            AlertDialog.Builder builder =  new AlertDialog.Builder(context);
-            View dialog = LayoutInflater.from(context).inflate( R.layout.check_internet_dialog,null);
+        if (!Common.isConnectedToInternet(context)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            View dialog = LayoutInflater.from(context).inflate(R.layout.check_internet_dialog, null);
             builder.setView(dialog);
 
             AppCompatButton btnRetry = dialog.findViewById(R.id.checkNetBtn);
 
-            AlertDialog alertDialog =builder.create();
+            AlertDialog alertDialog = builder.create();
             alertDialog.show();
             alertDialog.setCancelable(false);
             alertDialog.getWindow().setGravity(Gravity.CENTER);
 
-            btnRetry.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    alertDialog.dismiss();
-                    onReceive(context,intent);
-                }
+            btnRetry.setOnClickListener(view -> {
+                alertDialog.dismiss();
+                onReceive(context, intent);
             });
 
         }

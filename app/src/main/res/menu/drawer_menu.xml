@@ -23,7 +23,7 @@
 
         <item
             android:id="@+id/navAnnouncements"
-            android:icon="@drawable/announcement_bullhorn_loud_hailer_megaphone_speaking_trumpet_svgrepo_com"
+            android:icon="@drawable/pick_miner_svgrepo_com"
             android:title="@string/announcement" />
 
 

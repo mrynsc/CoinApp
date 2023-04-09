@@ -5,19 +5,18 @@ import android.app.Activity;
 import androidx.lifecycle.ViewModel;
 
 import com.pow.networkapp.databinding.ActivityProfileBinding;
-import com.pow.networkapp.databinding.ActivityStartBinding;
 import com.pow.networkapp.repo.ProfileActivityRepo;
 
 public class ProfileActivityViewModel extends ViewModel {
 
-    private ProfileActivityRepo repo;
+    private final ProfileActivityRepo repo;
 
-    public ProfileActivityViewModel(){
+    public ProfileActivityViewModel() {
         repo = new ProfileActivityRepo();
     }
 
-    public void getUserInfo(String userId, ActivityProfileBinding binding,Activity activity){
-        repo.getUserInfo(userId,binding,activity);
+    public void getUserInfo(String userId, ActivityProfileBinding binding, Activity activity) {
+        repo.getUserInfo(userId, binding, activity);
     }
 
 }

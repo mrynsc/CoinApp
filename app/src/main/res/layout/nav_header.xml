@@ -2,17 +2,61 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/_20sdp"
-    android:gravity="center"
-    android:padding="@dimen/_20sdp"
+    android:background="@color/app_purple"
+    android:padding="@dimen/_10sdp"
     android:orientation="vertical"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    >
 
 
-    <LinearLayout
+
+    <RelativeLayout
         android:layout_width="match_parent"
+        android:layout_marginTop="@dimen/_25sdp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_15sdp"/>
+        >
+
+        <ImageView
+            android:layout_width="@dimen/_80sdp"
+            android:layout_height="@dimen/_80sdp"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/logoHeader"
+            android:src="@drawable/powlogo"/>
+
+        <ImageView
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+
+            android:src="@drawable/miner_worker_svgrepo_com"
+            android:id="@+id/minerImage"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="username"
+            android:textColor="@color/white"
+            android:layout_below="@id/minerImage"
+            android:id="@+id/usernameHeader"
+
+            android:layout_centerVertical="true"
+            android:fontFamily="@font/allerta"
+            android:textSize="15sp"
+           />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Miner"
+            android:id="@+id/miner"
+
+            android:textColor="@color/white"
+            android:layout_below="@id/usernameHeader"
+            android:fontFamily="@font/allerta"
+            android:textSize="16sp"
+            android:layout_marginTop="@dimen/_2sdp"
+            />
+
+    </RelativeLayout>
 
 
 

@@ -247,25 +247,13 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/startBtn"
-                    android:layout_centerHorizontal="true"
-                    android:layout_marginTop="@dimen/_8sdp"
-                    android:id="@+id/energy_count"
-                    android:text="Get Energy"
-                    android:fontFamily="@font/allerta"
-                    android:textColor="@color/app_purple"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    />
+
 
                 <ImageView
                     android:id="@+id/energyStatusImage"
                     android:layout_width="@dimen/_30sdp"
                     android:layout_height="@dimen/_30sdp"
-                    android:layout_below="@id/energy_count"
+                    android:layout_below="@id/startBtn"
                     android:layout_centerInParent="true"
                     android:layout_marginTop="@dimen/_8sdp"
                     android:src="@drawable/high_voltage_svgrepo_com" />
@@ -369,7 +357,7 @@
 
             <com.google.android.gms.ads.AdView
                 android:id="@+id/adView"
-                android:layout_marginTop="@dimen/_4sdp"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:layout_below="@id/infotext"
                 android:layout_width="match_parent"
                 app:adSize="SMART_BANNER"

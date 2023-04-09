@@ -1,11 +1,11 @@
 package com.pow.networkapp.model;
 
-public class Referral  {
+public class Referral {
 
     private String inviterId;
     private String receiverId;
 
-    public Referral(){
+    public Referral() {
 
     }
 

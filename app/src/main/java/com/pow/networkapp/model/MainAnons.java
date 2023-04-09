@@ -7,11 +7,11 @@ public class MainAnons {
     private int status;
 
 
-    public MainAnons(){
+    public MainAnons() {
 
     }
 
-    public MainAnons(String anons, String id,int status) {
+    public MainAnons(String anons, String id, int status) {
         this.anons = anons;
         this.id = id;
         this.status = status;
