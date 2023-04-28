@@ -8,17 +8,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:24929797723:android:6a835fda448a2c76a4e17e",
+        "mobilesdk_app_id": "1:24929797723:android:e28b919e9c79b98aa4e17e",
         "android_client_info": {
-          "package_name": "com.pow.networkapp"
+          "package_name": "com.pow.mining"
         }
       },
       "oauth_client": [
         {
-          "client_id": "24929797723-aq8jlldeioakvbh6b1j5ks5v7unmolsv.apps.googleusercontent.com",
+          "client_id": "24929797723-tasucmrudjt94ssdjqnjqma4lv4k7r6a.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.pow.networkapp",
+            "package_name": "com.pow.mining",
             "certificate_hash": "8451041fe811890aec6924d5b5e87fe9a5aab0c6"
           }
         },
